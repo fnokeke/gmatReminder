@@ -5,3 +5,5 @@ node_modules/
 platforms/
 plugins/
 vcs.xml
+workspace.xml
+.DS_STORE
