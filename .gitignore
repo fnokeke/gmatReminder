@@ -6,4 +6,4 @@ platforms/
 plugins/
 vcs.xml
 .DS_STORE
-./idea
+workspace.xml
