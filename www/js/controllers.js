@@ -92,6 +92,7 @@ angular.module('starter.controllers', [])
 
       $scope.deactivateGMATReminder = function () {
         console.log("GMAT reminder deactivated.")
+        $scope.showToast("Reminder deactivated.");
 
         $cordovaLocalNotification.cancel(999).then(function (result) {
           console.log('Notification 999 Canceled');
