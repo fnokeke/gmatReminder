@@ -31,7 +31,7 @@ angular.module('starter.controllers', [])
       $scope.reminder.saveDisabled = false;
     };
 
-    var adjustDateToToday = function (datetimeValue) {
+    $scope.adjustDateToToday = function (datetimeValue) {
       var
         today = new Date(),
         dt = new Date(datetimeValue),
@@ -43,8 +43,18 @@ angular.module('starter.controllers', [])
       return today;
     }
 
+    $scope.showToast = function (text) {
+      setTimeout(function () {
+        //if ($ionicPlatform) {
+        window.plugins.toast.showLongBottom(text);
+        //} else {
+        //  showDialog(text);
+        //}
+      }, 100);
+    };
+
     $scope.saveReminderValues = function () {
-      localStorage.time = adjustDateToToday($scope.reminder.time) ;
+      localStorage.time = $scope.adjustDateToToday($scope.reminder.time);
       console.log("reminder.time:", localStorage.time);
       $scope.reminder.saveDisabled = true;
 
@@ -83,7 +93,7 @@ angular.module('starter.controllers', [])
       $scope.deactivateGMATReminder = function () {
         console.log("GMAT reminder deactivated.")
 
-        $cordovaLocalNotification.cancel(999).then(function(result) {
+        $cordovaLocalNotification.cancel(999).then(function (result) {
           console.log('Notification 999 Canceled');
         });
       };
@@ -98,13 +108,50 @@ angular.module('starter.controllers', [])
 
         var currentTime = new Date();
         var alarmTime = new Date(localStorage.time);
+        var isToday = true;
         if (alarmTime < currentTime) {
           alarmTime.setDate(alarmTime.getDate() + 1);
+          isToday = false;
         }
-        var timeDiff = alarmTime - currentTime;
-        var timeFromNow = new Date(currentTime.getTime() + timeDiff);
-        console.log("timeFromNow", timeFromNow);
-        console.log("hrs before alarm:", timeDiff/(3600*1000));
+
+        var
+          timeDiff = alarmTime - currentTime,
+          timeFromNow = new Date(currentTime.getTime() + timeDiff),
+          hrsFromNow = Math.round(((timeDiff / (3600 * 1000)) + 0.00001) * 100) / 100, // 2dp
+          msg;
+
+        if (hrsFromNow === 1.0) {
+          msg = " (in 1 hour)";
+        } else if (hrsFromNow >= 1.01) {
+          msg = " (in approx " + hrsFromNow + " hrs)";
+        } else {
+          var mins = Math.round(60 * hrsFromNow);
+          msg = ' (in ' + mins + ' minute';
+          msg = mins > 1 ? msg + 's)' : msg + ')';
+        }
+
+        var extractTime = function (datetimeValue) {
+          var
+            hrs = datetimeValue.getHours(),
+            mins = datetimeValue.getMinutes(),
+            amPM;
+
+          amPM = hrs < 12 ? 'am' : 'pm';
+          hrs %= 12;
+          hrs = hrs < 10 ? '0' + hrs : hrs;
+          mins = mins < 10 ? '0' + mins : mins;
+
+          return hrs + ':' + mins + ' ' + amPM;
+        }
+
+        if (isToday) {
+          msg = "Next alarm: Today at " + extractTime(timeFromNow) + msg;
+        }
+        else {
+          msg = "Next alarm: Tomorrow at " + extractTime(timeFromNow) + msg;
+        }
+        console.log(msg);
+        $scope.showToast(msg);
 
         $cordovaLocalNotification.schedule({
           id: 999,
