@@ -1,19 +1,16 @@
-<ion-view view-title="Chats/Reminder">
+<ion-view view-title="Reminder">
   <ion-content class="padding">
 
     <ion-list>
       <div class="list">
-        <label class="item item-input">
-          <span class="input-label">Reminder Time:</span>
-          <input type="time" ng-model="reminder.time" ng-change="enableSaveButton()">
+        <label class="item item-divider">
+          Activate
         </label>
-
         <label class="item item-input">
-          <span class="input-label">Reminder Mode</span>
-          <select ng-model="reminder.mode" ng-change="enableSaveButton()">
-            <option selected>Pop Up</option>
-            <option>SMS</option>
-          </select>
+          <span class="input-label">
+            Daily Time
+          </span>
+          <input type="time" ng-model="reminder.time" ng-change="enableSaveButton()">
         </label>
 
         <label class="item item-input">
@@ -24,36 +21,25 @@
           </button>
         </label>
 
+        <label class="item item-divider">
+         Deactivate
+        </label>
+
+        <ion-toggle toggle-class="toggle-assertive"
+                    ng-model="reminder.deactivate"
+                    ng-change="toggleSwitched()">
+          Deactivate Reminder
+        </ion-toggle>
+
+        <label class="item item-divider">
+          Test API
+        </label>
         <label class="item item-input">
           <button class="button button-dark button-block" ng-click="testNutrition()">
-            Test Nutrition API
+            Get API Response
           </button>
         </label>
       </div>
-    </ion-list>
-
-    <ion-list>
-      <button class="button button-full button-balanced" ng-click="scheduleGMATNotification()">
-        Start GMAT Reminder
-      </button>
-      <button class="button button-full button-assertive" ng-click="cancelGMATNotification()">
-        Cancel GMAT Reminder
-      </button>
-      <button class="button button-full button-positive" ng-click="scheduleSingleNotification()">
-        Show Local Notification (1)
-      </button>
-      <button class="button button-full button-positive" ng-click="scheduleDelayedNotification()">
-        Show Local Notification After 10 sec (2)
-      </button>
-      <button class="button button-full button-positive" ng-click="scheduleEveryMinuteNotification()">
-        Show Local Notification Every 1 min (3)
-      </button>
-      <button class="button button-full button-positive" ng-click="updateSingleNotification()">
-        Update Notification 2 (after 10 sec)
-      </button>
-      <button class="button button-full button-positive" ng-click="cancelSingleNotification()">
-        Cancel Notification 3 (every 1 min)
-      </button>
     </ion-list>
 
     <ion-list>

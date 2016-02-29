@@ -19,38 +19,38 @@ angular.module('starter.controllers', [])
   })
 
   .controller('ChatsCtrl', function ($scope, DataServiceHTTP, $cordovaLocalNotification, $ionicPlatform, Chats) {
-
     $scope.items = [];
     $scope.reminder = {
       time: new Date(localStorage.time),
-      mode: localStorage.mode
+      mode: localStorage.mode,
+      deactivate: false,
+      saveDisabled: true
     };
-    $scope.reminder.saveDisabled = true;
 
     $scope.enableSaveButton = function () {
-      console.log("value changed now");
       $scope.reminder.saveDisabled = false;
     };
 
-    var getFormattedTime = function (datetimeValue) {
+    var adjustDateToToday = function (datetimeValue) {
       var
+        today = new Date(),
         dt = new Date(datetimeValue),
         hrs = dt.getHours(),
         mins = dt.getMinutes();
 
-      hrs = hrs < 10 ? '0' + hrs : hrs;
-      mins = mins < 10 ? '0' + mins : mins;
-      return hrs + ':' + mins;
+      today.setHours(hrs);
+      today.setMinutes(mins);
+      return today;
     }
 
     $scope.saveReminderValues = function () {
-      localStorage.time = $scope.reminder.time;
-      localStorage.mode = $scope.reminder.mode;
-
-      console.log("reminder.time:", $scope.reminder.time);
-      console.log("reminder.time formatted:", getFormattedTime($scope.reminder.time));
-      console.log("reminder.mode:", $scope.reminder.mode);
+      localStorage.time = adjustDateToToday($scope.reminder.time) ;
+      console.log("reminder.time:", localStorage.time);
       $scope.reminder.saveDisabled = true;
+
+      if (!$scope.reminder.deactivate) {
+        $scope.activateGMATReminder();
+      }
     };
 
     $scope.testNutrition = function () {
@@ -74,85 +74,46 @@ angular.module('starter.controllers', [])
       Chats.remove(chat);
     };
 
+    $scope.toggleSwitched = function () {
+      $scope.reminder.deactivate ? $scope.deactivateGMATReminder() : $scope.activateGMATReminder();
+    };
+
     $ionicPlatform.ready(function () {
 
-      $scope.scheduleSingleNotification = function () {
-        $cordovaLocalNotification.schedule({
-          id: 1,
-          title: 'GMAT Practice Reminder',
-          text: 'Start practicing within next 10 mins to receive your reward.',
-          //data: {
-          //  customProperty: 'custom value'
-          //}
-        }).then(function (result) {
-          console.log('Notification 1 triggered');
-        }).catch(
-          function (reason) {
-            console.log('Rejection error: (' + reason + ').');
-          });
-      };
+      $scope.deactivateGMATReminder = function () {
+        console.log("GMAT reminder deactivated.")
 
-      $scope.scheduleDelayedNotification = function () {
-        var now = new Date().getTime();
-        var _10SecondsFromNow = new Date(now + 10 * 1000);
-
-        $cordovaLocalNotification.schedule({
-          id: 2,
-          title: 'Warning',
-          text: 'Im so late',
-          at: _10SecondsFromNow
-        }).then(function (result) {
-          console.log('Notification 2 triggered');
+        $cordovaLocalNotification.cancel(999).then(function(result) {
+          console.log('Notification 999 Canceled');
         });
       };
 
-      $scope.scheduleEveryMinuteNotification = function () {
-        $cordovaLocalNotification.schedule({
-          id: 3,
-          title: 'Warning',
-          text: 'Dont fall asleep',
-          every: 'minute'
-        }).then(function (result) {
-          console.log('Notification 3 triggered');
-        });
-      };
+      $scope.activateGMATReminder = function () {
+        console.log("GMAT reminder activated.");
 
-      $scope.scheduleGMATNotification = function () {
-        var one_hour = 3600 * 1000;
-        var one_minute = 60 * 1000;
-        var now = new Date().getTime(),
-          _hrs_from_now = new Date(now + 6 * one_hour),
-          _mins_from_now = new Date(now + 3 * one_minute);
+        if (!localStorage.time) {
+          console.log("oops, time not set yet. Updated time to now.");
+          localStorage.time = new Date();
+        }
+
+        var currentTime = new Date();
+        var alarmTime = new Date(localStorage.time);
+        if (alarmTime < currentTime) {
+          alarmTime.setDate(alarmTime.getDate() + 1);
+        }
+        var timeDiff = alarmTime - currentTime;
+        var timeFromNow = new Date(currentTime.getTime() + timeDiff);
+        console.log("timeFromNow", timeFromNow);
+        console.log("hrs before alarm:", timeDiff/(3600*1000));
+
         $cordovaLocalNotification.schedule({
-          id: 10,
+          id: 999,
           title: 'GMAT Gentle Reminder',
           text: 'Time to practice (start within next 10 minutes)',
           every: 'day',
-          firstAt: _hrs_from_now
+          at: timeFromNow
         }).then(function (result) {
-          console.log('Notification 3 triggered');
-        });
-      };
-
-      $scope.cancelGMATNotification = function () {
-        $cordovaLocalNotification.cancel(10).then(function (result) {
-          console.log('Notification 10 Canceled');
-        });
-      };
-
-      $scope.updateSingleNotification = function () {
-        $cordovaLocalNotification.update({
-          id: 2,
-          title: 'Warning Update',
-          text: 'This is updated text!'
-        }).then(function (result) {
-          console.log('Notification 1 Updated');
-        });
-      };
-
-      $scope.cancelSingleNotification = function () {
-        $cordovaLocalNotification.cancel(3).then(function (result) {
-          console.log('Notification 3 Canceled');
+          console.log('Notification gmat triggered:', result);
         });
       };
 
