@@ -13,23 +13,6 @@
           <span class="input-label">Password</span>
           <input type="text" value="jax2a@091!" ng-disabled="true">
         </label>
-        <label class="item item-divider">
-          Rewards Earned
-        </label>
-        <label class="item item-input">
-
-          <div class="row header">
-            <div class="col">Date</div>
-            <div class="col">Time</div>
-            <div class="col">Rewards</div>
-          </div>
-
-          <div class="row" ng-repeat="data in settings.data">
-            <div class="col">{{data.date}}</div>
-            <div class="col">{{data.time}}</div>
-            <div class="col">{{data.amount}}</div>
-          </div>
-        </label>
       </div>
     </ion-list>
 
@@ -40,7 +23,47 @@
           GMAT Practice App.
         </a>
       </div>
+    </ion-list>
+
+    <ion-list>
+      <item class="item item-divider icon-refreshing">
+        Rewards Earned
+      </item>
+
+      <div class="row stable-bg bar-header">
+        <div class="col text-center ">
+          <h5>No of Questions</h5>
+        </div>
+        <div class="col text-center">
+          <h5>Taken On </h5>
+        </div>
+        <div class="col text-center">
+          <h5>Duration</h5>
+        </div>
+        <div class="col text-center">
+          <h5>Score</h5>
+        </div>
+        <div class="col text-center">
+          <h5>Cumulative Rewards ($)</h5>
+        </div>
       </div>
+
+      <ul ng-repeat="practice in practices">
+        <div class="row stable-bg">
+          <div class="col text-center"> {{practice.question_count}}</div>
+          <div class="col text-center"> {{practice.taken_on.split("T")[0]}}</div>
+          <div class="col text-center"> {{practice.duration}}</div>
+          <div class="col text-center"> {{practice.percent_correct}}</div>
+          <div class="col text-center"> 5.00</div>
+        </div>
+      </ul>
+    </ion-list>
+
+    <ion-list class="padding text-center">
+        <button class="button button-outline icon-right ion-refresh"
+                ng-click="getVeritasData()">
+          Refresh
+        </button>
     </ion-list>
   </ion-content>
 </ion-view>

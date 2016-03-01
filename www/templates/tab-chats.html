@@ -30,28 +30,7 @@
                     ng-change="toggleSwitched()">
           Deactivate Reminder
         </ion-toggle>
-
-        <label class="item item-divider">
-          Test API
-        </label>
-        <label class="item item-input">
-          <button class="button button-dark button-block" ng-click="getVeritasData()">
-            Get Performance Scores
-          </button>
-        </label>
       </div>
-    </ion-list>
-
-    <ion-list>
-      <ul ng-repeat="practice in practices | limitTo: 20">
-        <li>
-          <h3>duration:</h3> {{practice.duration}} <br>
-          <h3>id:</h3> {{practice.id}} <br>
-          <h3> percent_correct:</h3> {{practice.percent_correct}} <br>
-          <h3>question_count:</h3> {{practice.question_count}} <br>
-          <h3>taken_on:</h3> {{practice.taken_on}}
-        </li>
-      </ul>
     </ion-list>
 
     <!--<ion-list>-->

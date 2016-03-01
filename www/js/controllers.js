@@ -17,7 +17,8 @@ angular.module('starter.controllers', [])
   .controller('DashCtrl', function ($scope) {
   })
 
-  .controller('ChatsCtrl', function ($scope, VeritasServiceHTTP, DataServiceHTTP, $cordovaLocalNotification, $ionicPlatform, Chats) {
+  .controller('ChatsCtrl', function ($scope, DataServiceHTTP, $cordovaLocalNotification, $ionicPlatform,
+                                     Chats, $cordovaInAppBrowser) {
     localStorage.studentId = 2;
     $scope.items = [];
     $scope.reminder = {
@@ -62,13 +63,6 @@ angular.module('starter.controllers', [])
       if (!$scope.reminder.deactivate) {
         $scope.activateGMATReminder();
       }
-    };
-
-    $scope.getVeritasData = function () {
-      VeritasServiceHTTP.get({studentId: localStorage.studentId}, function (response) {
-        $scope.practices = response.practices;
-        console.log("$scope.practices:", $scope.practices);
-      });
     };
 
     $scope.chats = Chats.all();
@@ -166,26 +160,29 @@ angular.module('starter.controllers', [])
     //$scope.chat = Chats.get($stateParams.chatId);
   })
 
-  .controller('AccountCtrl', function ($scope) {
+  .controller('AccountCtrl', function ($scope, VeritasServiceHTTP) {
     $scope.settings = {
       enableFriends: true
     };
 
-    $scope.data = [
-      {
-        date: 'Feb 22',
-        time: '5:10 pm',
-        amount: '$5.00'
-      },
-      {
-        date: 'Feb 23',
-        time: '5:03 pm',
-        amount: '$5.00'
-      },
-      {
-        date: 'Feb 24',
-        time: '5:07 pm',
-        amount: '$5.00'
-      }
-    ];
+    $scope.getVeritasData = function () {
+      VeritasServiceHTTP.get({studentId: localStorage.studentId}, function (response) {
+        $scope.practices = response.practices;
+
+        var practiceName;
+        response.practices.forEach(function (practice) {
+          practiceName = 'practice' + practice.id;
+          localStorage[practiceName] =
+            practice.id + ';' +
+            practice.question_count + ';' +
+            practice.taken_on + ';' +
+            practice.duration + ';' +
+            practice.percent_correct + ';' +
+            '5.00';
+        });
+
+        console.log("$scope.practices:", $scope.practices);
+      });
+
+    };
   });
