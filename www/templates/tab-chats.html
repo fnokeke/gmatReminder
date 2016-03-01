@@ -22,7 +22,7 @@
         </label>
 
         <label class="item item-divider">
-         Deactivate
+          Deactivate
         </label>
 
         <ion-toggle toggle-class="toggle-assertive"
@@ -35,18 +35,21 @@
           Test API
         </label>
         <label class="item item-input">
-          <button class="button button-dark button-block" ng-click="testNutrition()">
-            Get API Response
+          <button class="button button-dark button-block" ng-click="getVeritasData()">
+            Get Performance Scores
           </button>
         </label>
       </div>
     </ion-list>
 
     <ion-list>
-      <ul ng-repeat="item in items | limitTo: 20">
+      <ul ng-repeat="practice in practices | limitTo: 20">
         <li>
-          <h5><u>{{item.fields.brand_name}}</u></h5>
-          {{item.fields.item_name}} | {{item.fields.nf_calories}} calories
+          <h3>duration:</h3> {{practice.duration}} <br>
+          <h3>id:</h3> {{practice.id}} <br>
+          <h3> percent_correct:</h3> {{practice.percent_correct}} <br>
+          <h3>question_count:</h3> {{practice.question_count}} <br>
+          <h3>taken_on:</h3> {{practice.taken_on}}
         </li>
       </ul>
     </ion-list>

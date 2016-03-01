@@ -1,4 +1,4 @@
-angular.module('starter.services', [])
+angular.module('starter.services', ['ngResource'])
   .value('nutritionConst', {
     'appId': '8abbcd8e',
     'appKey': '36e8d264537037ee7e832a41902ffe57'
@@ -6,7 +6,7 @@ angular.module('starter.services', [])
 
   .factory('DataServiceHTTP', function ($http, nutritionConst) {
     return {
-      getAll: function (_key) {
+      getByHTTP: function (_key) {
 
         return $http.get('https://api.nutritionix.com/v1_1/search/' + _key, {
           'params': {
@@ -21,8 +21,19 @@ angular.module('starter.services', [])
     }
   })
 
+  .factory('VeritasServiceHTTP', function($resource, $http) {
+
+    return $resource('http://slm.smalldata.io/gmat/api/student/:studentId');
+
+    //return {
+    //  getByHTTP: function (studentId) {
+    //    return $http.get(url + studentId);
+    //  }
+    //}
+  })
 
   .factory('Chats', function () {
+
     // Might use a resource here that returns a JSON array
 
     // Some fake testing data

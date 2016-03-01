@@ -2,6 +2,9 @@
   <ion-content>
     <ion-list>
       <div class="list">
+        <label class="item item-divider">
+          Login Details
+        </label>
         <label class="item item-input">
           <span class="input-label">Username</span>
           <input type="text" value="jacksonlex@gmail.com" ng-disabled="true">
@@ -9,6 +12,23 @@
         <label class="item item-input">
           <span class="input-label">Password</span>
           <input type="text" value="jax2a@091!" ng-disabled="true">
+        </label>
+        <label class="item item-divider">
+          Rewards Earned
+        </label>
+        <label class="item item-input">
+
+          <div class="row header">
+            <div class="col">Date</div>
+            <div class="col">Time</div>
+            <div class="col">Rewards</div>
+          </div>
+
+          <div class="row" ng-repeat="data in settings.data">
+            <div class="col">{{data.date}}</div>
+            <div class="col">{{data.time}}</div>
+            <div class="col">{{data.amount}}</div>
+          </div>
         </label>
       </div>
     </ion-list>

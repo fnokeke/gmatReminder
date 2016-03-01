@@ -14,18 +14,19 @@ angular.module('starter.controllers', [])
     });
   })
 
-
   .controller('DashCtrl', function ($scope) {
   })
 
-  .controller('ChatsCtrl', function ($scope, DataServiceHTTP, $cordovaLocalNotification, $ionicPlatform, Chats) {
+  .controller('ChatsCtrl', function ($scope, VeritasServiceHTTP, DataServiceHTTP, $cordovaLocalNotification, $ionicPlatform, Chats) {
+    localStorage.studentId = 2;
     $scope.items = [];
     $scope.reminder = {
       time: new Date(localStorage.time),
       mode: localStorage.mode,
       deactivate: false,
-      saveDisabled: true
+      saveDisabled: true,
     };
+
 
     $scope.enableSaveButton = function () {
       $scope.reminder.saveDisabled = false;
@@ -63,20 +64,11 @@ angular.module('starter.controllers', [])
       }
     };
 
-    $scope.testNutrition = function () {
-      console.log("testing nutrition.");
-
-      // use the $http based service
-      var promise = DataServiceHTTP.getAll($scope.searchTerm);
-      promise.then(function (_response) {
-        //console.debug(" The data " + JSON.stringify(_response.data));
-        console.log("API response:", _response);
-        $scope.items = _response.data.hits;
-      }).catch(
-        function (reason) {
-          console.log('Rejection error: (' + reason + ').');
-        });
-
+    $scope.getVeritasData = function () {
+      VeritasServiceHTTP.get({studentId: localStorage.studentId}, function (response) {
+        $scope.practices = response.practices;
+        console.log("$scope.practices:", $scope.practices);
+      });
     };
 
     $scope.chats = Chats.all();
@@ -178,4 +170,22 @@ angular.module('starter.controllers', [])
     $scope.settings = {
       enableFriends: true
     };
+
+    $scope.data = [
+      {
+        date: 'Feb 22',
+        time: '5:10 pm',
+        amount: '$5.00'
+      },
+      {
+        date: 'Feb 23',
+        time: '5:03 pm',
+        amount: '$5.00'
+      },
+      {
+        date: 'Feb 24',
+        time: '5:07 pm',
+        amount: '$5.00'
+      }
+    ];
   });
