@@ -20,6 +20,8 @@ angular.module('starter.controllers', [])
   .controller('ChatsCtrl', function ($scope, DataServiceHTTP, $cordovaLocalNotification, $ionicPlatform,
                                      Chats, $cordovaInAppBrowser) {
     localStorage.studentId = 2;
+    localStorage.whenLastUsed = '';
+    localStorage.clickcount = 0;
     $scope.items = [];
     $scope.reminder = {
       time: new Date(localStorage.time),
@@ -28,9 +30,25 @@ angular.module('starter.controllers', [])
       saveDisabled: true,
     };
 
+    $scope.saveButtonUsed = function() {
+      var currentDate = new Date();
+      currentDate = currentDate.getMonth() + '-' + currentDate.getDate();
+
+      return localStorage.whenLastUsed === currentDate;
+    }
 
     $scope.enableSaveButton = function () {
-      $scope.reminder.saveDisabled = false;
+      var msg;
+      if (!$scope.saveButtonUsed()) {
+        $scope.reminder.saveDisabled = false;
+      } else if (localStorage.clickcount >= 3) {
+        msg = ("Whoa! What'd I say? Only one change per day :)");
+      } else {
+        msg = ("Only one change allowed per day :)");
+        localStorage.clickcount++;
+      }
+      console.log(msg);
+      $scope.showToast(msg);
     };
 
     $scope.adjustDateToToday = function (datetimeValue) {
@@ -56,10 +74,14 @@ angular.module('starter.controllers', [])
     };
 
     $scope.saveReminderValues = function () {
-      localStorage.time = $scope.adjustDateToToday($scope.reminder.time);
-      console.log("reminder.time:", localStorage.time);
-      $scope.reminder.saveDisabled = true;
+      var response = confirm("Are you sure? (only one change per day allowed)");
+      if (!response) return;
 
+      localStorage.time = $scope.adjustDateToToday($scope.reminder.time);
+      var currentDate = new Date();
+      localStorage.whenLastUsed = currentDate.getMonth() + '-' + currentDate.getDate();
+
+      $scope.reminder.saveDisabled = true;
       if (!$scope.reminder.deactivate) {
         $scope.activateGMATReminder();
       }
@@ -165,7 +187,7 @@ angular.module('starter.controllers', [])
       enableFriends: true
     };
 
-    $scope.changeDateFormat = function(dateStr) {
+    $scope.changeDateFormat = function (dateStr) {
       var onlyDate = dateStr.split("T")[0];
       onlyDate = onlyDate.split("-"); //yyyy-mm-dd
 
@@ -174,7 +196,7 @@ angular.module('starter.controllers', [])
         day = parseInt(onlyDate[2]),
         months = ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
 
-      return  months[monthIndex-1] + ' ' + day;
+      return months[monthIndex - 1] + ' ' + day;
     }
 
     $scope.getVeritasData = function () {
