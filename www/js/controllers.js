@@ -165,8 +165,25 @@ angular.module('starter.controllers', [])
       enableFriends: true
     };
 
+    $scope.changeDateFormat = function(dateStr) {
+      var onlyDate = dateStr.split("T")[0];
+      onlyDate = onlyDate.split("-"); //yyyy-mm-dd
+
+      var
+        monthIndex = parseInt(onlyDate[1]),
+        day = parseInt(onlyDate[2]),
+        months = ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+
+      return  months[monthIndex-1] + ' ' + day;
+    }
+
     $scope.getVeritasData = function () {
       VeritasServiceHTTP.get({studentId: localStorage.studentId}, function (response) {
+
+        response.practices.forEach(function (practice) {
+          practice.taken_on = $scope.changeDateFormat(practice.taken_on);
+        });
+
         $scope.practices = response.practices;
 
         var practiceName;

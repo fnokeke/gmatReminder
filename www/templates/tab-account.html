@@ -1,9 +1,9 @@
-<ion-view view-title="Veritas Account">
+<ion-view view-title="Welcome to GMAT Reminder">
   <ion-content>
     <ion-list>
       <div class="list">
         <label class="item item-divider">
-          Login Details
+          Veritas Login Details
         </label>
         <label class="item item-input">
           <span class="input-label">Username</span>
@@ -19,7 +19,7 @@
     <ion-list>
       <div class="item item-text-wrap">
         Use the displayed login details to sign into your downloaded
-        <a href="http://gmat.veritasprep.com/question-bank/practices">
+        <a ng-href="http://gmat.veritasprep.com/question-bank/practices">
           GMAT Practice App.
         </a>
       </div>
@@ -27,7 +27,7 @@
 
     <ion-list>
       <item class="item item-divider icon-refreshing">
-        Rewards Earned
+        Practice Rewards Earned
       </item>
 
       <div class="row stable-bg bar-header">
@@ -51,7 +51,7 @@
       <ul ng-repeat="practice in practices">
         <div class="row stable-bg">
           <div class="col text-center"> {{practice.question_count}}</div>
-          <div class="col text-center"> {{practice.taken_on.split("T")[0]}}</div>
+          <div class="col text-center"> {{practice.taken_on}}</div>
           <div class="col text-center"> {{practice.duration}}</div>
           <div class="col text-center"> {{practice.percent_correct}}</div>
           <div class="col text-center"> 5.00</div>
@@ -60,10 +60,12 @@
     </ion-list>
 
     <ion-list class="padding text-center">
-        <button class="button button-outline icon-right ion-refresh"
-                ng-click="getVeritasData()">
-          Refresh
-        </button>
+      <button class="button button-outline icon-right ion-refresh"
+              ng-click="getVeritasData()">
+        Refresh
+      </button>
     </ion-list>
+
+
   </ion-content>
 </ion-view>
