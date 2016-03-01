@@ -1,1 +1,45 @@
 /* Empty. Add your own CSS if you like */
+body {
+    cursor: url('finger.png'), auto;
+}
+
+.slider {
+    height: 100%;
+}
+.slider-slide {
+    padding-top: 80px;
+    color: #000;
+    background-color: #fff;
+    text-align: center;
+
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: 300;
+}
+
+#logo {
+    margin: 20px 0px;
+    height: 23%;
+}
+
+#list {
+    width: 270px;
+    margin: 10px auto;
+    font-size: 15px;
+}
+
+p {
+    font-size: 15px;
+}
+
+#list ol {
+    margin-top: 30px;
+}
+#list ol li {
+    text-align: left;
+    list-style: decimal;
+    margin: 10px 0px;
+}
+
+.button.ng-hide{
+    display:none;
+}

@@ -14,7 +14,31 @@ angular.module('starter.controllers', [])
     });
   })
 
-  .controller('DashCtrl', function ($scope) {
+  .controller('GuideCtrl', function ($scope, $state, $ionicSlideBoxDelegate) {
+
+    // Called to navigate to the main app
+    $scope.startApp = function() {
+      $state.go('tab.account');
+    };
+
+    $scope.next = function() {
+      $ionicSlideBoxDelegate.next();
+    };
+
+    $scope.previous = function() {
+      $ionicSlideBoxDelegate.previous();
+    };
+
+    $scope.slideChanged = function(index) {
+      $scope.slideIndex = index;
+    };
+
+  })
+
+  .controller('DashCtrl', function ($scope, $state) {
+    $scope.toGuide = function() {
+      $state.go('guide');
+    }
   })
 
   .controller('ChatsCtrl', function ($scope, DataServiceHTTP, $cordovaLocalNotification, $ionicPlatform,
@@ -74,7 +98,7 @@ angular.module('starter.controllers', [])
     };
 
     $scope.saveReminderValues = function () {
-      var response = confirm("Are you sure? (only one change per day allowed)");
+      var response = confirm("Are you sure?\n(only one change per day allowed)");
       if (!response) return;
 
       localStorage.time = $scope.adjustDateToToday($scope.reminder.time);
@@ -187,6 +211,16 @@ angular.module('starter.controllers', [])
       enableFriends: true
     };
 
+    $scope.showToast = function (text) {
+      setTimeout(function () {
+        //if ($ionicPlatform) {
+        window.plugins.toast.showLongBottom(text);
+        //} else {
+        //  showDialog(text);
+        //}
+      }, 100);
+    };
+
     $scope.changeDateFormat = function (dateStr) {
       var onlyDate = dateStr.split("T")[0];
       onlyDate = onlyDate.split("-"); //yyyy-mm-dd
@@ -208,6 +242,13 @@ angular.module('starter.controllers', [])
 
         $scope.practices = response.practices;
 
+        if (response.practices.length === 0) {
+          $scope.showToast("No data was fetched from your account.");
+        } else {
+          $scope.showToast("Update successful.");
+
+        }
+
         var practiceName;
         response.practices.forEach(function (practice) {
           practiceName = 'practice' + practice.id;
@@ -225,3 +266,5 @@ angular.module('starter.controllers', [])
 
     };
   });
+//TODO: allow ios permissions for notification
+//TODO: remove duplicating functions in scopes

@@ -1,0 +1,65 @@
+<ion-view view-title="">
+  <ion-nav-buttons side="left">
+    <button class="button button-positive button-clear no-animation"
+            ng-click="startApp()" ng-show="!slideIndex">
+      Skip Intro
+    </button>
+    <button class="button button-positive button-clear no-animation"
+            ng-click="previous()" ng-show="slideIndex > 0">
+      Previous Slide
+    </button>
+  </ion-nav-buttons>
+  <ion-nav-buttons side="right">
+    <button class="button button-positive button-clear no-animation"
+            ng-click="next()" ng-show="slideIndex != 2">
+      Next
+    </button>
+    <button class="button button-positive button-clear no-animation"
+            ng-click="startApp()" ng-show="slideIndex == 2">
+      Start using App
+    </button>
+  </ion-nav-buttons>
+  <ion-slide-box on-slide-changed="slideChanged(index)">
+    <ion-slide>
+      <h3>Thank you for participating in this experiment!</h3>
+      <div id="logo">
+        <img src="img/icon152.png">
+      </div>
+      <p>
+        Please make sure you carefully follow all instructions on the next screen.
+      </p>
+    </ion-slide>
+    <ion-slide>
+      <h3>Using GMAT Reminder</h3>
+
+      <div id="list">
+        <h5>Just five steps:</h5>
+        <ol>
+          <li>
+            Install GMAT Veritas Mobile App
+          </li>
+          <li>
+            Using the username and password provided in the 'Home' tab,
+            log into the GMAT Veritas App that you downloaded.
+          </li>
+          <li>
+            Select a specific time of the day that is most convenient
+            to receive reminder for your practice <b>(this time can only be changed once per day)</b>
+          </li>
+          <li>Slide the 'Deactivate Reminder' toggle if you decide later to completely stop daily notifications</li>
+          <li>Tap 'Refresh' button to view your metrics and rewards.</li>
+        </ol>
+      </div>
+
+    </ion-slide>
+    <ion-slide>
+      <h3>Any questions?</h3>
+      <p>
+        Ask your researchers.
+      </p>
+      <p>
+        Happy practicing.
+      </p>
+    </ion-slide>
+  </ion-slide-box>
+</ion-view>
