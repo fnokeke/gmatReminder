@@ -3,7 +3,7 @@
 
     <ion-list>
       <div class="list">
-        <label class="item item-divider">
+        <label class="item item-divider positive-bg">
           Activate
         </label>
         <label class="item item-input">
@@ -12,41 +12,30 @@
           </span>
           <input type="time" ng-model="reminder.time" ng-change="enableSaveButton()">
         </label>
+        </div>
+      </ion-list>
 
-        <label class="item item-input">
-          <button class="button button-dark button-block"
-                  ng-disabled="reminder.saveDisabled"
-                  ng-click="saveReminderValues(reminder)">
-            Save
-          </button>
-        </label>
-
-        <label class="item item-divider">
-          Deactivate
-        </label>
-
-        <ion-toggle toggle-class="toggle-assertive"
-                    ng-model="reminder.deactivate"
-                    ng-change="toggleSwitched()">
-          Deactivate Reminder
-        </ion-toggle>
-      </div>
+    <ion-list>
+      <button class="button button-dark button-block icon-right"
+              ng-disabled="reminder.saveDisabled"
+              ng-click="saveReminderValues(reminder)">
+        Save
+      </button>
     </ion-list>
 
-    <!--<ion-list>-->
-    <!--<ion-item class=" item-remove-animate item-avatar item-icon-right-->
-    <!--ng-repeat=" chat in chats-->
-    <!--" type="item-text-wrap" href="#/tab/chats/{{chat.id}}">-->
-    <!--<img ng-src="{{chat.face}}">-->
-    <!--<h2>{{chat.name}}</h2>-->
-    <!--<p>{{chat.lastText}}</p>-->
-    <!--<i class="icon ion-chevron-right icon-accessory"></i>-->
+    <ion-list>
+      <label class="item item-divider positive-bg">
+        Deactivate
+      </label>
 
-    <!--<ion-option-button class="button-assertive" ng-click="remove(chat)">-->
-    <!--Delete-->
-    <!--</ion-option-button>-->
-    <!--</ion-item>-->
-    <!--</ion-list>-->
+      <ion-toggle toggle-class="toggle-assertive"
+                  ng-model="reminder.deactivate"
+                  ng-change="toggleSwitched()">
+        Deactivate Reminder
+      </ion-toggle>
+    </ion-list>
+
+    </ion-list>
 
   </ion-content>
 </ion-view>
