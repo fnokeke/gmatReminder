@@ -21,15 +21,23 @@ angular.module('starter.services', ['ngResource'])
     }
   })
 
-  .factory('VeritasServiceHTTP', function($resource, $http) {
+  .factory('VeritasServiceHTTP', function ($resource, $http) {
 
-    return $resource('http://slm.smalldata.io/gmat/api/student/:studentId');
+    return {
+      getPractices: function () {
+        return $resource('http://slm.smalldata.io/gmat/api/student/:studentId')
+      },
 
-    //return {
-    //  getByHTTP: function (studentId) {
-    //    return $http.get(url + studentId);
-    //  }
-    //}
+      forceScrape: function () {
+        return $resource('http://slm.smalldata.io/gmat/api/student/scrape/:studentId')
+      }
+    };
+
+//return {
+//  getByHTTP: function (studentId) {
+//    return $http.get(url + studentId);
+//  }
+//}
   })
 
   .factory('Chats', function () {

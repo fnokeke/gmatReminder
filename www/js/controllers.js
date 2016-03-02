@@ -17,33 +17,32 @@ angular.module('starter.controllers', [])
   .controller('GuideCtrl', function ($scope, $state, $ionicSlideBoxDelegate) {
 
     // Called to navigate to the main app
-    $scope.startApp = function() {
+    $scope.startApp = function () {
       $state.go('tab.account');
     };
 
-    $scope.next = function() {
+    $scope.next = function () {
       $ionicSlideBoxDelegate.next();
     };
 
-    $scope.previous = function() {
+    $scope.previous = function () {
       $ionicSlideBoxDelegate.previous();
     };
 
-    $scope.slideChanged = function(index) {
+    $scope.slideChanged = function (index) {
       $scope.slideIndex = index;
     };
 
   })
 
   .controller('DashCtrl', function ($scope, $state) {
-    $scope.toGuide = function() {
+    $scope.toGuide = function () {
       $state.go('guide');
     }
   })
 
   .controller('ChatsCtrl', function ($scope, DataServiceHTTP, $cordovaLocalNotification, $ionicPlatform,
                                      Chats, $cordovaInAppBrowser) {
-    localStorage.studentId = 2;
     localStorage.whenLastUsed = '';
     localStorage.clickcount = 0;
     $scope.items = [];
@@ -54,7 +53,7 @@ angular.module('starter.controllers', [])
       saveDisabled: true,
     };
 
-    $scope.saveButtonUsed = function() {
+    $scope.saveButtonUsed = function () {
       var currentDate = new Date();
       currentDate = currentDate.getMonth() + '-' + currentDate.getDate();
 
@@ -207,8 +206,34 @@ angular.module('starter.controllers', [])
   })
 
   .controller('AccountCtrl', function ($scope, VeritasServiceHTTP) {
-    $scope.settings = {
-      enableFriends: true
+
+    $scope.account = {
+      code: localStorage.code || '',
+      username: localStorage.email || '',
+      password: localStorage.password || ''
+    };
+
+    $scope.submitCode = function (code) {
+      localStorage.code = code;
+      localStorage.studentId = $scope.getIdFromCode(code);
+
+      VeritasServiceHTTP.getPractices().get({studentId: localStorage.studentId}, function (response) {
+
+        console.log("student info log:", response);
+        localStorage.email = response.email;
+        localStorage.password = response.id;
+
+        $scope.account.username = response.email;
+        $scope.account.password = response.id;
+
+        $scope.refreshScore();
+      });
+
+    };
+
+    // example: gax1209x093 ==> 12
+    $scope.getIdFromCode = function (code) {
+      return code.substr(2, 2);
     };
 
     $scope.showToast = function (text) {
@@ -233,8 +258,15 @@ angular.module('starter.controllers', [])
       return months[monthIndex - 1] + ' ' + day;
     }
 
-    $scope.getVeritasData = function () {
-      VeritasServiceHTTP.get({studentId: localStorage.studentId}, function (response) {
+    $scope.refreshScore = function () {
+      console.log("before running scrape and refresh function.");
+      setTimeout(function () {
+        //VeritasServiceHTTP.forceScrape().get({studentId: localStorage.studentId}, function (response) {
+        //  console.log("scrape done. response:", response);
+        //});
+      }, 5000);
+
+      VeritasServiceHTTP.getPractices().get({studentId: localStorage.studentId}, function (response) {
 
         response.practices.forEach(function (practice) {
           practice.taken_on = $scope.changeDateFormat(practice.taken_on);
@@ -249,8 +281,11 @@ angular.module('starter.controllers', [])
 
         }
 
+        var rewards = parseInt(localStorage.studentId) * 5.00;
+        console.log("rewards is:", rewards);
         var practiceName;
         response.practices.forEach(function (practice) {
+          practice.rewards = '$' + rewards;
           practiceName = 'practice' + practice.id;
           localStorage[practiceName] =
             practice.id + ';' +
@@ -258,13 +293,17 @@ angular.module('starter.controllers', [])
             practice.taken_on + ';' +
             practice.duration + ';' +
             practice.percent_correct + ';' +
-            '5.00';
+            practice.rewards;
         });
 
         console.log("$scope.practices:", $scope.practices);
       });
 
     };
+
+    if (localStorage.studentId) {
+      $scope.refreshScore();
+    }
   });
 //TODO: allow ios permissions for notification
 //TODO: remove duplicating functions in scopes
