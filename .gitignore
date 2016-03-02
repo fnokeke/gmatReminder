@@ -7,3 +7,4 @@ plugins/
 vcs.xml
 .DS_STORE
 workspace.xml
+.io-config.json
