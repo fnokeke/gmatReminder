@@ -21,10 +21,14 @@
               ng-click="saveReminderValues(reminder)">
         Save
       </button>
+      <button class="button button-dark button-block icon-right"
+              ng-click="pushNow()">
+        Push Notif 1 sec
+      </button>
     </ion-list>
 
     <ion-list>
-      <label class="item item-divider positive-bg">
+      <label class="item item-divider positive-bg" ng-dblclick="reactivateHack()">
         Deactivate
       </label>
 

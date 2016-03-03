@@ -1,17 +1,42 @@
 angular.module('starter.controllers', [])
 
-  .run(function ($ionicPlatform) {
-    $ionicPlatform.ready(function () {
-      // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-      // for form inputs)
-      if (window.cordova && window.cordova.plugins.Keyboard) {
-        cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-      }
-      if (window.StatusBar) {
-        StatusBar.styleDefault();
-      }
-      console.log("ionic keyboard or statusBar done");
-    });
+  .run(function ($ionicPlatform, $rootScope) {
+
+    //$ionicPlatform.ready(function () {
+    //  // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+    //  // for form inputs)
+    //  if (window.cordova && window.cordova.plugins.Keyboard) {
+    //    cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+    //  }
+    //  if (window.StatusBar) {
+    //    StatusBar.styleDefault();
+    //  }
+    //
+    //  if (window.plugin && window.plugin.notification) {
+    //    window.plugin.notification.local.setDefaults({
+    //      autoCancel: true
+    //    });
+    //
+    //    if (window.device && window.device.platform === 'iOS') {
+    //      window.plugin.notification.local.registerPermission();
+    //    }
+    //
+    //    window.plugin.notification.local.on('click', function (notification) {
+    //      $timeout(function () {
+    //        $rootScope.$broadcast('cordovaLocalNotification:click', notification);
+    //      });
+    //    });
+    //
+    //    window.plugin.notification.local.on('trigger', function (notification) {
+    //      $timeout(function () {
+    //        $rootScope.$broadcast('cordovaLocalNotification:trigger', notification);
+    //      });
+    //    });
+    //  }
+    //
+    //
+    //  console.log("ionic keyboard or statusBar done");
+    //});
   })
 
   .controller('GuideCtrl', function ($scope, $state, $ionicSlideBoxDelegate) {
@@ -41,164 +66,205 @@ angular.module('starter.controllers', [])
     }
   })
 
-  .controller('ChatsCtrl', function ($scope, DataServiceHTTP, $cordovaLocalNotification, $ionicPlatform,
-                                     Chats, $cordovaInAppBrowser) {
-    localStorage.whenLastUsed = '';
-    localStorage.clickcount = 0;
-    $scope.items = [];
-    $scope.reminder = {
-      time: new Date(localStorage.time),
-      mode: localStorage.mode,
-      deactivate: false,
-      saveDisabled: true,
-    };
+  .controller('ChatsCtrl', function ($scope, $rootScope, $ionicPlatform, $cordovaLocalNotification,
+                                     DataServiceHTTP, $cordovaInAppBrowser) {
 
-    $scope.saveButtonUsed = function () {
-      var currentDate = new Date();
-      currentDate = currentDate.getMonth() + '-' + currentDate.getDate();
+      $ionicPlatform.ready(function () {
+        $scope.pushNow = function () {
 
-      return localStorage.whenLastUsed === currentDate;
-    }
+          console.log('notification pushed now.');
+          $scope.showToast("notification pushed.");
 
-    $scope.enableSaveButton = function () {
-      var msg;
-      if (!$scope.saveButtonUsed()) {
-        $scope.reminder.saveDisabled = false;
-      } else if (localStorage.clickcount >= 3) {
-        msg = ("Whoa! What'd I say? Only one change per day :)");
-      } else {
-        msg = ("Only one change allowed per day :)");
-        localStorage.clickcount++;
-      }
-      console.log(msg);
-      $scope.showToast(msg);
-    };
+          $cordovaLocalNotification.schedule({
+            id: 999,
+            title: 'GMAT Gentle Reminder',
+            text: 'Time to practice (start within next 10 minutes)',
+            at: new Date(new Date().getTime() + 1 * 1000)
+          });
 
-    $scope.adjustDateToToday = function (datetimeValue) {
-      var
-        today = new Date(),
-        dt = new Date(datetimeValue),
-        hrs = dt.getHours(),
-        mins = dt.getMinutes();
+          $rootScope.$on('$cordovaLocalNotification:click', function (event, notification, state) {
+            $scope.showToast("click out");
+            alert(notification.id + notification.text);
+          });
 
-      today.setHours(hrs);
-      today.setMinutes(mins);
-      return today;
-    }
+        };
+      });
 
-    $scope.showToast = function (text) {
-      setTimeout(function () {
-        //if ($ionicPlatform) {
-        window.plugins.toast.showLongBottom(text);
-        //} else {
-        //  showDialog(text);
-        //}
-      }, 100);
-    };
-
-    $scope.saveReminderValues = function () {
-      var response = confirm("Are you sure?\n(only one change per day allowed)");
-      if (!response) return;
-
-      localStorage.time = $scope.adjustDateToToday($scope.reminder.time);
-      var currentDate = new Date();
-      localStorage.whenLastUsed = currentDate.getMonth() + '-' + currentDate.getDate();
-
-      $scope.reminder.saveDisabled = true;
-      if (!$scope.reminder.deactivate) {
-        $scope.activateGMATReminder();
-      }
-    };
-
-    $scope.chats = Chats.all();
-    $scope.remove = function (chat) {
-      Chats.remove(chat);
-    };
-
-    $scope.toggleSwitched = function () {
-      $scope.reminder.deactivate ? $scope.deactivateGMATReminder() : $scope.activateGMATReminder();
-    };
-
-    $ionicPlatform.ready(function () {
-
-      $scope.deactivateGMATReminder = function () {
-        console.log("GMAT reminder deactivated.")
-        $scope.showToast("Reminder deactivated.");
-
-        $cordovaLocalNotification.cancel(999).then(function (result) {
-          console.log('Notification 999 Canceled');
-        });
+      localStorage.whenLastUsed = '';
+      localStorage.clickcount = 0;
+      $scope.items = [];
+      $scope.reminder = {
+        time: new Date(localStorage.time),
+        mode: localStorage.mode,
+        deactivate: false,
+        saveDisabled: true,
       };
 
-      $scope.activateGMATReminder = function () {
-        console.log("GMAT reminder activated.");
+      $scope.reactivateHack = function () {
+        $scope.reminder.saveDisabled = false;
+        $scope.showToast("admin mode granted.");
+      }
 
-        if (!localStorage.time) {
-          console.log("oops, time not set yet. Updated time to now.");
-          localStorage.time = new Date();
-        }
+      $scope.saveButtonUsed = function () {
+        var currentDate = new Date();
+        currentDate = currentDate.getMonth() + '-' + currentDate.getDate();
 
-        var currentTime = new Date();
-        var alarmTime = new Date(localStorage.time);
-        var isToday = true;
-        if (alarmTime < currentTime) {
-          alarmTime.setDate(alarmTime.getDate() + 1);
-          isToday = false;
-        }
+        return localStorage.whenLastUsed === currentDate;
+      }
 
-        var
-          timeDiff = alarmTime - currentTime,
-          timeFromNow = new Date(currentTime.getTime() + timeDiff),
-          hrsFromNow = Math.round(((timeDiff / (3600 * 1000)) + 0.00001) * 100) / 100, // 2dp
-          msg;
-
-        if (hrsFromNow === 1.0) {
-          msg = " (in 1 hour)";
-        } else if (hrsFromNow >= 1.01) {
-          msg = " (in approx " + hrsFromNow + " hrs)";
+      $scope.enableSaveButton = function () {
+        var msg;
+        if (!$scope.saveButtonUsed()) {
+          $scope.reminder.saveDisabled = false;
+        } else if (localStorage.clickcount >= 3) {
+          msg = ("Whoa! What'd I say? Only one change per day :)");
         } else {
-          var mins = Math.round(60 * hrsFromNow);
-          msg = ' (in ' + mins + ' minute';
-          msg = mins > 1 ? msg + 's)' : msg + ')';
-        }
-
-        var extractTime = function (datetimeValue) {
-          var
-            hrs = datetimeValue.getHours(),
-            mins = datetimeValue.getMinutes(),
-            amPM;
-
-          amPM = hrs < 12 ? 'am' : 'pm';
-          hrs %= 12;
-          hrs = hrs < 10 ? '0' + hrs : hrs;
-          mins = mins < 10 ? '0' + mins : mins;
-
-          return hrs + ':' + mins + ' ' + amPM;
-        }
-
-        if (isToday) {
-          msg = "Next alarm: Today at " + extractTime(timeFromNow) + msg;
-        }
-        else {
-          msg = "Next alarm: Tomorrow at " + extractTime(timeFromNow) + msg;
+          msg = ("Only one change allowed per day :)");
+          localStorage.clickcount++;
         }
         console.log(msg);
         $scope.showToast(msg);
-
-        $cordovaLocalNotification.schedule({
-          id: 999,
-          title: 'GMAT Gentle Reminder',
-          text: 'Time to practice (start within next 10 minutes)',
-          every: 'day',
-          at: timeFromNow
-        }).then(function (result) {
-          console.log('Notification gmat triggered:', result);
-        });
       };
 
-    });
+      $scope.adjustDateToToday = function (datetimeValue) {
+        var
+          today = new Date(),
+          dt = new Date(datetimeValue),
+          hrs = dt.getHours(),
+          mins = dt.getMinutes();
 
-  })
+        today.setHours(hrs);
+        today.setMinutes(mins);
+        return today;
+      }
+
+      $scope.showToast = function (text) {
+        setTimeout(function () {
+          //if ($ionicPlatform) {
+          window.plugins.toast.showLongBottom(text);
+          //} else {
+          //  showDialog(text);
+          //}
+        }, 100);
+      };
+
+      $scope.saveReminderValues = function () {
+        var response = confirm("Are you sure?\n(only one change per day allowed)");
+        if (!response) return;
+
+        localStorage.time = $scope.adjustDateToToday($scope.reminder.time);
+        var currentDate = new Date();
+        localStorage.whenLastUsed = currentDate.getMonth() + '-' + currentDate.getDate();
+
+        $scope.reminder.saveDisabled = true;
+        if (!$scope.reminder.deactivate) {
+          $scope.activateGMATReminder();
+        }
+      };
+
+      $scope.toggleSwitched = function () {
+        $scope.reminder.deactivate ? $scope.deactivateGMATReminder() : $scope.activateGMATReminder();
+      };
+
+      $ionicPlatform.ready(function () {
+
+        $scope.deactivateGMATReminder = function () {
+          console.log("GMAT reminder deactivated.")
+          $scope.showToast("Reminder deactivated.");
+
+          $cordovaLocalNotification.cancel(999).then(function (result) {
+            console.log('Notification 999 Canceled');
+          });
+        };
+
+        $scope.activateGMATReminder = function () {
+          console.log("GMAT reminder activated.");
+
+          if (!localStorage.time) {
+            console.log("oops, time not set yet. Updated time to now.");
+            localStorage.time = new Date();
+          }
+
+          var currentTime = new Date();
+          var alarmTime = new Date(localStorage.time);
+          var isToday = true;
+          if (alarmTime < currentTime) {
+            alarmTime.setDate(alarmTime.getDate() + 1);
+            isToday = false;
+          }
+
+          var
+            timeDiff = alarmTime - currentTime,
+            timeFromNow = new Date(currentTime.getTime() + timeDiff),
+            hrsFromNow = Math.round(((timeDiff / (3600 * 1000)) + 0.00001) * 100) / 100, // 2dp
+            msg;
+
+          if (hrsFromNow === 1.0) {
+            msg = " (in 1 hour)";
+          } else if (hrsFromNow >= 1.01) {
+            msg = " (in approx " + hrsFromNow + " hrs)";
+          } else {
+            var mins = Math.round(60 * hrsFromNow);
+            msg = ' (in ' + mins + ' minute';
+            msg = mins > 1 ? msg + 's)' : msg + ')';
+          }
+
+          var extractTime = function (datetimeValue) {
+            var
+              hrs = datetimeValue.getHours(),
+              mins = datetimeValue.getMinutes(),
+              amPM;
+
+            amPM = hrs < 12 ? 'am' : 'pm';
+            hrs %= 12;
+            hrs = hrs < 10 ? '0' + hrs : hrs;
+            mins = mins < 10 ? '0' + mins : mins;
+
+            return hrs + ':' + mins + ' ' + amPM;
+          }
+
+          if (isToday) {
+            msg = "Next alarm: Today at " + extractTime(timeFromNow) + msg;
+          }
+          else {
+            msg = "Next alarm: Tomorrow at " + extractTime(timeFromNow) + msg;
+          }
+          console.log(msg);
+          $scope.showToast(msg);
+
+          $ionicPlatform.ready(function () {
+
+            $cordovaLocalNotification.schedule({
+              id: 999,
+              title: 'GMAT Gentle Reminder',
+              text: 'Time to practice (start within next 10 minutes)',
+              every: 'day',
+              at: timeFromNow
+            });
+
+            $rootScope.$on('$cordovaLocalNotification:click', function (event, notification, state) {
+              if (notification.id === 999) {
+                $scope.showToast("click out");
+              }
+            });
+
+          });
+        };
+
+      });
+
+      $scope.$on('cordovaLocalNotification:trigger', function (notification, state) {
+        $scope.showToast("trigger!!");
+        alert(notification.id);
+      });
+
+      $scope.$on('cordovaLocalNotification:click', function (notification, state) {
+        $scope.showToast("clicked!!");
+        alert(notification.id);
+      });
+
+    }
+  )
 
   .controller('ChatDetailCtrl', function ($scope, $stateParams, Chats) {
     $scope.item = Chats.get($stateParams.item)
