@@ -67,7 +67,7 @@ angular.module('starter.controllers', [])
   })
 
   .controller('ChatsCtrl', function ($scope, $rootScope, $ionicPlatform, $cordovaLocalNotification,
-                                     DataServiceHTTP, $cordovaInAppBrowser) {
+                                     DataServiceHTTP) {
 
       $ionicPlatform.ready(function () {
         $scope.pushNow = function () {
@@ -75,16 +75,56 @@ angular.module('starter.controllers', [])
           console.log('notification pushed now.');
           $scope.showToast("notification pushed.");
 
-          $cordovaLocalNotification.schedule({
-            id: 999,
-            title: 'GMAT Gentle Reminder',
-            text: 'Time to practice (start within next 10 minutes)',
-            at: new Date(new Date().getTime() + 1 * 1000)
-          });
+          //$cordovaLocalNotification.schedule({
+          //  id: 999,
+          //  title: 'GMAT Gentle Reminder',
+          //  text: 'Time to practice (start within next 10 minutes)',
+          //  at: new Date(new Date().getTime() + 1 * 1000)
+          //});
+
+
+          //appAvailability.check(
+          //  scheme, // URI Scheme
+          //  function () {  // Success callback
+          //    navigator.startApp.start(scheme, function (message) {  /* success */
+          //        $scope.showToast("Launching GMAT app...");
+          //      },
+          //      function (error) { /* error */
+          //        $scope.showToast("Error launching GMAT app...");
+          //      });
+          //  },
+          //  function () {  // Error callback
+          //    $scope.showToast('Install app');
+          //    window.open('https://play.google.com/store/apps/details?id=com.veritas.mobile', '_system', 'location=no');
+          //  }
+          //);
+
+          // launch external app
+          var scheme;
+          if (ionic.Platform.isIOS()) {
+            scheme = 'https://itunes.apple.com/us/app/gmat-question-bank/id943136266?mt=8';
+          }
+          else if (ionic.Platform.isAndroid()) {
+            scheme = 'com.veritas.mobile';
+          }
+
+          navigator.startApp.check(scheme, function (message) { /* success */
+
+              navigator.startApp.start(scheme, function (message) {  /* success */
+                  $scope.showToast("Launching GMAT app...");
+                },
+                function (error) { /* error */
+                  $scope.showToast("Error launching GMAT app...");
+                });
+            },
+            function (error) { /* error */
+              $scope.showToast('Install app');
+              window.open('https://play.google.com/store/apps/details?id=com.veritas.mobile', '_system', 'location=no');
+            });
 
           $rootScope.$on('$cordovaLocalNotification:click', function (event, notification, state) {
-            $scope.showToast("click out");
-            alert(notification.id + notification.text);
+            $scope.showToast("on click called");
+
           });
 
         };
@@ -242,11 +282,11 @@ angular.module('starter.controllers', [])
               at: timeFromNow
             });
 
-            $rootScope.$on('$cordovaLocalNotification:click', function (event, notification, state) {
-              if (notification.id === 999) {
-                $scope.showToast("click out");
-              }
-            });
+            //$rootScope.$on('$cordovaLocalNotification:click', function (event, notification, state) {
+            //  if (notification.id === 999) {
+            //    $scope.showToast("click out");
+            //  }
+            //});
 
           });
         };
