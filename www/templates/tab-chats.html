@@ -12,18 +12,14 @@
           </span>
           <input type="time" ng-model="reminder.time" ng-change="enableSaveButton()">
         </label>
-        </div>
-      </ion-list>
+      </div>
+    </ion-list>
 
     <ion-list>
       <button class="button button-dark button-block icon-right"
               ng-disabled="reminder.saveDisabled"
               ng-click="saveReminderValues(reminder)">
         Save
-      </button>
-      <button class="button button-dark button-block icon-right"
-              ng-click="pushNow()">
-        Open App Links
       </button>
     </ion-list>
 
