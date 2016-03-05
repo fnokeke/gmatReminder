@@ -282,16 +282,15 @@ angular.module('starter.controllers', [])
 
     $scope.submitCode = function (code) {
       localStorage.code = code;
-      localStorage.studentId = $scope.getIdFromCode(code);
 
-      VeritasServiceHTTP.getPractices().get({studentId: localStorage.studentId}, function (response) {
+      VeritasServiceHTTP.getPractices().get({code: localStorage.code}, function (response) {
 
         console.log("student info log:", response);
-        localStorage.email = response.email;
-        localStorage.password = response.id;
+        localStorage.email = response.account.email;
+        localStorage.password = response.account.password;
 
-        $scope.account.username = response.email;
-        $scope.account.password = response.id;
+        $scope.account.username = response.account.email;
+        $scope.account.password = response.account.password;
 
         $scope.refreshScore();
       });
@@ -327,13 +326,8 @@ angular.module('starter.controllers', [])
 
     $scope.refreshScore = function () {
       console.log("before running scrape and refresh function.");
-      setTimeout(function () {
-        //VeritasServiceHTTP.forceScrape().get({studentId: localStorage.studentId}, function (response) {
-        //  console.log("scrape done. response:", response);
-        //});
-      }, 5000);
 
-      VeritasServiceHTTP.getPractices().get({studentId: localStorage.studentId}, function (response) {
+      VeritasServiceHTTP.getPractices().get({code: localStorage.code}, function (response) {
 
         response.practices.forEach(function (practice) {
           practice.taken_on = $scope.changeDateFormat(practice.taken_on);
@@ -345,10 +339,9 @@ angular.module('starter.controllers', [])
           $scope.showToast("No data was fetched from your account.");
         } else {
           $scope.showToast("Update successful.");
-
         }
 
-        var rewards = parseInt(localStorage.studentId) * 5.00;
+        var rewards = 1.23 * 5.00;
         console.log("rewards is:", rewards);
         var practiceName;
         response.practices.forEach(function (practice) {

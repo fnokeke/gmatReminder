@@ -25,11 +25,11 @@ angular.module('starter.services', ['ngResource'])
 
     return {
       getPractices: function () {
-        return $resource('http://slm.smalldata.io/gmat/api/student/:studentId')
+        return $resource('http://slm.smalldata.io/gmat/api/student/:code')
       },
 
       forceScrape: function () {
-        return $resource('http://slm.smalldata.io/gmat/api/student/scrape/:studentId')
+        return $resource('http://slm.smalldata.io/gmat/api/student/scrape/:code')
       }
     };
 
