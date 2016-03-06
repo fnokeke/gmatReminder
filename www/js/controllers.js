@@ -66,7 +66,7 @@ angular.module('starter.controllers', [])
     }
   })
 
-  .controller('ChatsCtrl', function ($scope, $rootScope, $ionicPlatform, $timeout,
+  .controller('ChatsCtrl', function ($scope, $rootScope, $ionicPlatform, $timeout, $ionicPopup,
                                      $cordovaLocalNotification, VeritasServiceHTTP) {
 
       localStorage.whenLastUsed = '';
@@ -139,19 +139,33 @@ angular.module('starter.controllers', [])
           return;
         }
 
-        var response = confirm("Are you sure?\n(only one change per day allowed)");
-        if (!response) return;
+        //var response = confirm("Are you sure?\n(only one change per day allowed)");
+        //if (!response) return;
 
-        localStorage.time = $scope.adjustDateToToday($scope.reminder.time);
-        $scope.saveToServer(localStorage.time);
+        var confirmPopup = $ionicPopup.confirm({
+          title: 'Set Daily Reminder',
+          subTitle: '(allowed only once per day)',
+          template: 'Are you sure you want to set reminder?'
+        });
 
-        var currentDate = new Date();
-        localStorage.whenLastUsed = currentDate.getMonth() + '-' + currentDate.getDate();
+        confirmPopup.then(function (res) {
+          if (res) {
+            localStorage.time = $scope.adjustDateToToday($scope.reminder.time);
+            $scope.saveToServer(localStorage.time);
 
-        $scope.reminder.saveDisabled = true;
-        if (!$scope.reminder.deactivate) {
-          $scope.activateGMATReminder();
-        }
+            var currentDate = new Date();
+            localStorage.whenLastUsed = currentDate.getMonth() + '-' + currentDate.getDate();
+
+            $scope.reminder.saveDisabled = true;
+
+            if (!$scope.reminder.deactivate) {
+              $scope.activateGMATReminder();
+            }
+          } else {
+            console.log('Reminder not set');
+          }
+        });
+
       };
 
       $scope.saveToServer = function (datetimeStr) {
@@ -388,7 +402,6 @@ angular.module('starter.controllers', [])
         }
 
         var rewards = 1.23 * 5.00;
-        console.log("rewards is:", rewards);
         var practiceName;
         response.practices.forEach(function (practice) {
           practice.rewards = '$' + rewards;
