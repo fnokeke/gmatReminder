@@ -15,10 +15,12 @@
           </button>
         </div>
         <label class="item item-input">
-          <span class="input-label">Username: {{account.username}}</span>
+          <span class="input-label">Username: </span>
+          <input class="input-class" value="{{account.username}}" ng-disabled="true">
         </label>
         <label class="item item-input">
-          <span class="input-label">Password: {{account.password}}</span>
+          <span class="input-label">Password: </span>
+          <input class="input-class" value="{{account.password}}" ng-disabled="true">
         </label>
       </div>
     </ion-list>

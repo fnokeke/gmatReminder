@@ -66,8 +66,8 @@ angular.module('starter.controllers', [])
     }
   })
 
-  .controller('ChatsCtrl', function ($scope, $rootScope, $ionicPlatform, $cordovaLocalNotification,
-                                     VeritasServiceHTTP) {
+  .controller('ChatsCtrl', function ($scope, $rootScope, $ionicPlatform, $timeout,
+                                     $cordovaLocalNotification, VeritasServiceHTTP) {
 
       localStorage.whenLastUsed = '';
       localStorage.clickcount = 0;
@@ -118,7 +118,7 @@ angular.module('starter.controllers', [])
       }
 
       $scope.showToast = function (text) {
-        setTimeout(function () {
+        $timeout(function () {
           window.plugins.toast.showLongBottom(text);
         }, 100);
       };
@@ -262,7 +262,6 @@ angular.module('starter.controllers', [])
                 }
 
                 navigator.startApp.check(scheme, function (message) { /* success */
-
                     navigator.startApp.start(scheme, function (message) {  /* success */
                         $scope.showToast("Opening GMAT app...");
                       },
@@ -321,7 +320,6 @@ angular.module('starter.controllers', [])
         $scope.account.username = response.account.email;
         $scope.account.password = response.account.password;
 
-        $scope.refreshScore();
       }, function (response) {
         var msg = "Unknown error occurred.";
         if (response.status === 0) {
@@ -370,7 +368,10 @@ angular.module('starter.controllers', [])
     }
 
     $scope.refreshScore = function () {
-      console.log("before running scrape and refresh function.");
+
+      VeritasServiceHTTP.scrape().get({code: localStorage.code}, function (response) {
+        console.log("No of practices updated:", response.practices_updated);
+      });
 
       VeritasServiceHTTP.practice().get({code: localStorage.code}, function (response) {
 

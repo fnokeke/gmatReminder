@@ -33,7 +33,7 @@ angular.module('starter.services', ['ngResource'])
       },
 
       scrape: function () {
-        return $resource('http://slm.smalldata.io/gmat/api/student/scrape/:code')
+        return $resource('http://slm.smalldata.io/gmat/scrape/:code')
       }
     };
 
