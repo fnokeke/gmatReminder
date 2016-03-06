@@ -67,7 +67,7 @@ angular.module('starter.controllers', [])
   })
 
   .controller('ChatsCtrl', function ($scope, $rootScope, $ionicPlatform, $cordovaLocalNotification,
-                                     DataServiceHTTP) {
+                                     VeritasServiceHTTP) {
 
       localStorage.whenLastUsed = '';
       localStorage.clickcount = 0;
@@ -119,19 +119,32 @@ angular.module('starter.controllers', [])
 
       $scope.showToast = function (text) {
         setTimeout(function () {
-          //if ($ionicPlatform) {
           window.plugins.toast.showLongBottom(text);
-          //} else {
-          //  showDialog(text);
-          //}
         }, 100);
       };
 
+      $scope.resetField = function (fieldname) {
+        if (fieldname === 'time') {
+          $scope.reminder.time = new Date(localStorage.time) || '';
+        }
+      };
+
       $scope.saveReminderValues = function () {
+
+        if (!localStorage.studentId) {
+          var msg = 'First submit participant code then try again.';
+          $scope.showToast(msg);
+          console.log(msg);
+          $scope.resetField('time');
+          return;
+        }
+
         var response = confirm("Are you sure?\n(only one change per day allowed)");
         if (!response) return;
 
         localStorage.time = $scope.adjustDateToToday($scope.reminder.time);
+        $scope.saveToServer(localStorage.time);
+
         var currentDate = new Date();
         localStorage.whenLastUsed = currentDate.getMonth() + '-' + currentDate.getDate();
 
@@ -139,6 +152,21 @@ angular.module('starter.controllers', [])
         if (!$scope.reminder.deactivate) {
           $scope.activateGMATReminder();
         }
+      };
+
+      $scope.saveToServer = function (datetimeStr) {
+
+        var
+          dt = new Date(datetimeStr),
+          hrs = dt.getHours(),
+          minutes = dt.getMinutes();
+
+        VeritasServiceHTTP.reminder().save({
+          student_id: localStorage.studentId,
+          remind_time: hrs + ':' + minutes
+        }, function (response) {
+          console.log("time successfully saved; response = ", response);
+        });
       };
 
       $scope.toggleSwitched = function () {
@@ -281,20 +309,37 @@ angular.module('starter.controllers', [])
     };
 
     $scope.submitCode = function (code) {
-      localStorage.code = code;
 
-      VeritasServiceHTTP.getPractices().get({code: localStorage.code}, function (response) {
-
+      VeritasServiceHTTP.practice().get({code: code}, function (response) {
         console.log("student info log:", response);
+
+        localStorage.code = code;
         localStorage.email = response.account.email;
         localStorage.password = response.account.password;
+        localStorage.studentId = response.account.student_id;
 
         $scope.account.username = response.account.email;
         $scope.account.password = response.account.password;
 
         $scope.refreshScore();
+      }, function (response) {
+        var msg = "Unknown error occurred.";
+        if (response.status === 0) {
+          msg = "Invalid code. Try again.";
+          $scope.resetField('account');
+        }
+        console.log(msg);
+        $scope.showToast(msg);
       });
 
+    };
+
+    $scope.resetField = function (fieldname) {
+      if (fieldname === 'account') {
+        $scope.account.code = '';
+        $scope.account.username = '';
+        $scope.account.password = '';
+      }
     };
 
     // example: gax1209x093 ==> 12
@@ -327,7 +372,7 @@ angular.module('starter.controllers', [])
     $scope.refreshScore = function () {
       console.log("before running scrape and refresh function.");
 
-      VeritasServiceHTTP.getPractices().get({code: localStorage.code}, function (response) {
+      VeritasServiceHTTP.practice().get({code: localStorage.code}, function (response) {
 
         response.practices.forEach(function (practice) {
           practice.taken_on = $scope.changeDateFormat(practice.taken_on);

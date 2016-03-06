@@ -24,11 +24,15 @@ angular.module('starter.services', ['ngResource'])
   .factory('VeritasServiceHTTP', function ($resource, $http) {
 
     return {
-      getPractices: function () {
+      practice: function () {
         return $resource('http://slm.smalldata.io/gmat/api/student/:code')
       },
 
-      forceScrape: function () {
+      reminder: function() {
+        return $resource('http://slm.smalldata.io/gmat/api/reminder');
+      },
+
+      scrape: function () {
         return $resource('http://slm.smalldata.io/gmat/api/student/scrape/:code')
       }
     };
