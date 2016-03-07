@@ -1,44 +1,5 @@
 angular.module('starter.controllers', [])
 
-  .run(function ($ionicPlatform, $rootScope) {
-
-    //$ionicPlatform.ready(function () {
-    //  // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-    //  // for form inputs)
-    //  if (window.cordova && window.cordova.plugins.Keyboard) {
-    //    cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-    //  }
-    //  if (window.StatusBar) {
-    //    StatusBar.styleDefault();
-    //  }
-    //
-    //  if (window.plugin && window.plugin.notification) {
-    //    window.plugin.notification.local.setDefaults({
-    //      autoCancel: true
-    //    });
-    //
-    //    if (window.device && window.device.platform === 'iOS') {
-    //      window.plugin.notification.local.registerPermission();
-    //    }
-    //
-    //    window.plugin.notification.local.on('click', function (notification) {
-    //      $timeout(function () {
-    //        $rootScope.$broadcast('cordovaLocalNotification:click', notification);
-    //      });
-    //    });
-    //
-    //    window.plugin.notification.local.on('trigger', function (notification) {
-    //      $timeout(function () {
-    //        $rootScope.$broadcast('cordovaLocalNotification:trigger', notification);
-    //      });
-    //    });
-    //  }
-    //
-    //
-    //  console.log("ionic keyboard or statusBar done");
-    //});
-  })
-
   .controller('GuideCtrl', function ($scope, $state, $ionicSlideBoxDelegate) {
 
     // Called to navigate to the main app
@@ -138,9 +99,6 @@ angular.module('starter.controllers', [])
           $scope.resetField('time');
           return;
         }
-
-        //var response = confirm("Are you sure?\n(only one change per day allowed)");
-        //if (!response) return;
 
         var confirmPopup = $ionicPopup.confirm({
           title: 'Set Daily Reminder',
@@ -335,11 +293,8 @@ angular.module('starter.controllers', [])
         $scope.account.password = response.account.password;
 
       }, function (response) {
-        var msg = "Unknown error occurred.";
-        if (response.status === 0) {
-          msg = "Invalid code. Try again.";
-          $scope.resetField('account');
-        }
+        var msg = "Invalid code. Try again.";
+        $scope.resetField('account');
         console.log(msg);
         $scope.showToast(msg);
       });
@@ -351,6 +306,7 @@ angular.module('starter.controllers', [])
         $scope.account.code = '';
         $scope.account.username = '';
         $scope.account.password = '';
+        $scope.practices = [];
       }
     };
 
@@ -381,11 +337,15 @@ angular.module('starter.controllers', [])
       return months[monthIndex - 1] + ' ' + day;
     }
 
+    $scope.isValidPractice = function(practice) {
+      return Math.random() > 0.5;
+    }
+
     $scope.refreshScore = function () {
 
-      VeritasServiceHTTP.scrape().get({code: localStorage.code}, function (response) {
-        console.log("No of practices updated:", response.practices_updated);
-      });
+      //VeritasServiceHTTP.scrape().get({code: localStorage.code}, function (response) {
+      //  console.log("No of practices updated:", response.practices_updated);
+      //});
 
       VeritasServiceHTTP.practice().get({code: localStorage.code}, function (response) {
 
@@ -401,10 +361,14 @@ angular.module('starter.controllers', [])
           $scope.showToast("Update successful.");
         }
 
-        var rewards = 1.23 * 5.00;
+        var randomRewards = '5.00';
         var practiceName;
         response.practices.forEach(function (practice) {
-          practice.rewards = '$' + rewards;
+          practice.isEarned = $scope.isValidPractice(practice);
+          practice.rewards = '$' + (practice.rewards || randomRewards);
+          practice.rewards = practice.isEarned ? practice.rewards : '$0.00';
+
+          // store for offline access
           practiceName = 'practice' + practice.id;
           localStorage[practiceName] =
             practice.id + ';' +
@@ -412,6 +376,7 @@ angular.module('starter.controllers', [])
             practice.taken_on + ';' +
             practice.duration + ';' +
             practice.percent_correct + ';' +
+            practice.isEarned + ';' +
             practice.rewards;
         });
 
@@ -424,5 +389,4 @@ angular.module('starter.controllers', [])
       $scope.refreshScore();
     }
   });
-//TODO: allow ios permissions for notification
 //TODO: remove duplicating functions in scopes
