@@ -343,9 +343,9 @@ angular.module('starter.controllers', [])
 
     $scope.refreshScore = function () {
 
-      //VeritasServiceHTTP.scrape().get({code: localStorage.code}, function (response) {
-      //  console.log("No of practices updated:", response.practices_updated);
-      //});
+      VeritasServiceHTTP.scrape().get({code: localStorage.code}, function (response) {
+        console.log("No of practices updated:", response.practices_updated);
+      });
 
       VeritasServiceHTTP.practice().get({code: localStorage.code}, function (response) {
 
