@@ -38,39 +38,29 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     templateUrl: 'templates/tabs.html'
   })
 
-    .state('guide', {
+    .state('intro', {
       url: '/',
-      templateUrl: 'templates/guide.html',
-      controller: 'GuideCtrl'
+      templateUrl: 'templates/intro.html',
+      controller: 'IntroCtrl'
     })
 
   // Each tab has its own nav history stack:
-
-  .state('tab.dash', {
-    url: '/dash',
+  .state('tab.guide', {
+    url: '/guide',
     views: {
-      'tab-dash': {
-        templateUrl: 'templates/tab-dash.html',
-        controller: 'DashCtrl'
+      'tab-guide': {
+        templateUrl: 'templates/tab-guide.html',
+        controller: 'GuideCtrl'
       }
     }
   })
 
-  .state('tab.chats', {
-      url: '/chats',
+  .state('tab.reminder', {
+      url: '/reminder',
       views: {
-        'tab-chats': {
-          templateUrl: 'templates/tab-chats.html',
-          controller: 'ChatsCtrl'
-        }
-      }
-    })
-    .state('tab.chat-detail', {
-      url: '/chats/:chatId',
-      views: {
-        'tab-chats': {
-          templateUrl: 'templates/chat-detail.html',
-          controller: 'ChatDetailCtrl'
+        'tab-reminder': {
+          templateUrl: 'templates/tab-reminder.html',
+          controller: 'ReminderCtrl'
         }
       }
     })

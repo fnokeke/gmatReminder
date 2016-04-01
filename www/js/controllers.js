@@ -1,6 +1,6 @@
 angular.module('starter.controllers', [])
 
-  .controller('GuideCtrl', function ($scope, $state, $ionicSlideBoxDelegate) {
+  .controller('IntroCtrl', function ($scope, $state, $ionicSlideBoxDelegate) {
 
     // Called to navigate to the main app
     $scope.startApp = function () {
@@ -21,13 +21,13 @@ angular.module('starter.controllers', [])
 
   })
 
-  .controller('DashCtrl', function ($scope, $state) {
+  .controller('GuideCtrl', function ($scope, $state) {
     $scope.toGuide = function () {
-      $state.go('guide');
+      $state.go('intro');
     }
   })
 
-  .controller('ChatsCtrl', function ($scope, $rootScope, $ionicPlatform, $timeout, $ionicPopup,
+  .controller('ReminderCtrl', function ($scope, $rootScope, $ionicPlatform, $timeout, $ionicPopup,
                                      $cordovaLocalNotification, VeritasServiceHTTP) {
 
       localStorage.whenLastUsed = '';
