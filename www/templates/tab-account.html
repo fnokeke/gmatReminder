@@ -27,27 +27,39 @@
 
     <ion-list>
       <item class="item item-divider icon-refreshing positive-bg">
-        Practice Rewards Earned
+        Practice Review
       </item>
 
       <div class="row stable-bg bar-header">
         <div class="col text-center">
-          <h5>Taken On </h5>
+          <h5>
+            Taken On
+          </h5>
         </div>
         <div class="col text-center ">
-          <h5>No of Questions</h5>
+          <h5>
+            No of Questions
+          </h5>
         </div>
         <div class="col text-center">
-          <h5>Duration</h5>
+          <h5>
+            Duration
+          </h5>
         </div>
         <div class="col text-center">
-          <h5>Score</h5>
+          <h5>
+            Score
+          </h5>
         </div>
         <div class="col text-center">
-          <h5>Valid Practice</h5>
+          <h5>
+            Relative to Reminder
+          </h5>
         </div>
         <div class="col text-center">
-          <h5>Rewards Earned</h5>
+          <h5>
+            Comment
+          </h5>
         </div>
       </div>
 
@@ -59,10 +71,10 @@
           <div class="col text-center"> {{practice.percent_correct}}</div>
           <div class="col text-center">
             <span ng-show="{{practice.isEarned}}" class="balanced">
-            &#10004;
+            5 mins before (&#10004)
             </span>
             <span ng-hide="{{practice.isEarned}}" class="assertive">
-               &#10007;
+               30 mins after (&#10007)
             </span>
           </div>
           <div class="col text-center">{{practice.rewards}}</bold></div>
