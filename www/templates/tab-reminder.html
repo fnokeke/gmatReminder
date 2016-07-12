@@ -4,34 +4,38 @@
     <ion-list>
       <div class="list">
         <label class="item item-divider positive-bg">
-          Activate
+          Set Reminder
         </label>
+
         <label class="item item-input">
-          <span class="input-label ion-clock">
-            Daily Reminder
-          </span>
-          <input type="time" ng-model="reminder.time" ng-change="enableSaveButton()">
+          <span class="ion-ios-alarm">&nbsp;&nbsp;</span>
+          <input type="time" ng-model="remind_time" ng-disabled="is_disabled" placeholder="HH:mm" required />
         </label>
+
+        <label class="item item-input" ng-show="is_disabled">
+          <span class="assertive">Cannot change reminder until tomorrow.</span>
+        </label>
+
       </div>
     </ion-list>
 
     <ion-list>
       <button class="button button-dark button-block icon-right"
-              ng-disabled="reminder.saveDisabled"
-              ng-click="saveReminderValues(reminder)">
+              ng-disabled="is_disabled"
+              ng-click="save_reminder(remind_time)">
         Save
       </button>
     </ion-list>
 
     <ion-list>
-      <label class="item item-divider positive-bg" ng-dblclick="reactivateHack()">
-        Deactivate
+      <label class="item item-divider positive-bg" ng-click="activate_admin_mode()">
+        Deactivate Reminder
       </label>
 
       <ion-toggle toggle-class="toggle-assertive"
-                  ng-model="reminder.deactivate"
-                  ng-change="toggleSwitched()">
-       <span class="ion-eye-disabled"></span> Deactivate Reminder
+                  ng-model="deactivate"
+                  ng-change="toggle_deactivate(deactivate)">
+       <span class="ion-eye-disabled"></span> Deactivate
       </ion-toggle>
     </ion-list>
 

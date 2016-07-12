@@ -1,22 +1,57 @@
 <ion-view view-title="Guide">
   <ion-content class="padding">
 
+    <div class="list">
+
+      <label class="item item-input item-select">
+
+        <div class="input-label">
+          4 Conditions:
+        </div>
+
+        <select ng-model="condition" ng-change="get_condition(condition)">
+          <option selected>Deadline/Contingency</option>
+          <option>Deadline/NO Contingency</option>
+          <option>NO Deadline/Contingency</option>
+          <option>NO Deadline/NO Contingency</option>
+        </select>
+
+      </label>
+
+      <div class="item item-text-wrap">
+        <div>
+          has_deadline: {{has_deadline}} <br />
+        </div>
+
+        <div>
+        has_contingency: {{has_contingency}}
+        </div>
+      </div>
+
+    </div>
+
+
     <div class="card">
       <label class="item item-divider positive-bg">
-      Summary
+        Summary
       </label>
+
       <div class="item item-text-wrap">
-        <li>Set reminder time and change only once per day.</li>
+        Install Veritas GMAT app if you haven't.
       </div>
 
       <div class="item item-text-wrap">
-        <li>Install Veritas GMAT app</li>
+        Set as many practice reminders as you desire.
+      </div>
+
+      <div class="item item-text-wrap">
+        Practice at least once a day. Each practice should be at least 3 minutes
+        and at least 3 questions covered.
       </div>
     </div>
 
     <div class="text-center">
-      <button class="button icon-right ion-chevron-right button-energized"
-              ng-click="toGuide()">
+      <button class="button icon-right ion-chevron-right button-energized" ng-click="toGuide()">
         Start Full Guide
       </button>
     </div>

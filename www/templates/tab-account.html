@@ -10,7 +10,7 @@
             <input type="text" placeholder="enter participant code"
                    ng-model="account.code">
           </label>
-          <button class="button button-small" ng-click="submitCode(account.code)">
+          <button class="button button-small" ng-click="submit_code(account.code)">
             Submit
           </button>
         </div>
@@ -33,27 +33,17 @@
       <div class="row stable-bg bar-header">
         <div class="col text-center">
           <h5>
-            Taken On
-          </h5>
-        </div>
-        <div class="col text-center ">
-          <h5>
-            No of Questions
-          </h5>
-        </div>
-        <div class="col text-center">
-          <h5>
             Duration
           </h5>
         </div>
-        <div class="col text-center">
+        <div class="col text-center ">
           <h5>
             Score
           </h5>
         </div>
         <div class="col text-center">
           <h5>
-            Relative to Reminder
+            Relative
           </h5>
         </div>
         <div class="col text-center">
@@ -65,28 +55,36 @@
 
       <ul ng-repeat="practice in practices | orderBy:'taken_on':true">
         <div class="row stable-bg">
-          <div class="col text-center"> {{practice.taken_on}}</div>
-          <div class="col text-center"> {{practice.question_count}}</div>
-          <div class="col text-center"> {{practice.duration}}</div>
-          <div class="col text-center"> {{practice.percent_correct}}</div>
           <div class="col text-center">
-            <span ng-show="{{practice.isEarned}}" class="balanced">
-            5 mins before (&#10004)
-            </span>
-            <span ng-hide="{{practice.isEarned}}" class="assertive">
-               30 mins after (&#10007)
+            {{practice.duration}} <br>
+            ({{practice.taken_on | date: "MMM d, h:mma" }})
+          </div>
+          <div class="col text-center">
+            {{practice.percent_correct}} <br /> {{practice.question_count}} questions
+          </div>
+          <!-- Relative to practice -->
+          <div class="col text-center">
+            <span class="balanced">
+             {{show_relative_to_practice()}}
             </span>
           </div>
-          <div class="col text-center">{{practice.rewards}}</bold></div>
+          <!-- comment col -->
+          <div class="col text-center">
+            <span class="assertive">
+             {{show_comment()}}
+            </span>
+          </div>
         </div>
       </ul>
     </ion-list>
 
     <ion-list class="text-center">
       <button class="button button-block button-outline icon-right"
-              ng-click="refreshScore()">
+              ng-click="refresh_score()">
         Refresh
       </button>
     </ion-list>
+
   </ion-content>
+
 </ion-view>
