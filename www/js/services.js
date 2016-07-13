@@ -105,6 +105,7 @@ angular.module('starter.services', ['ngResource'])
       'WHEN_LAST_CHANGED': 'when_last_changed',
       'CHANGE_LIST': 'change_list',
       'TIME_DICT': 'time_dict',
+      'RELATIVE_DICT': 'relative_dict',
 
       is_admin_mode: function() {
         console.log('admin_mode called.');
@@ -129,10 +130,6 @@ angular.module('starter.services', ['ngResource'])
       },
 
       set: function(key, value) {
-        if (key=='remind_time') {
-          value = this.adjust_date_to_today(value);
-        }
-
         localStorage.setItem(key, JSON.stringify(value));
       },
 
@@ -166,7 +163,6 @@ angular.module('starter.services', ['ngResource'])
           today.setSeconds(0);
 
           return today;
-
         }
       },
 

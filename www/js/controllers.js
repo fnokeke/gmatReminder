@@ -132,10 +132,18 @@ angular.module('starter.controllers', [])
 
     confirmPopup.then(function(answer) {
       if (answer) {
+        $scope.is_disabled = true;
+        remind_time = Helper.adjust_date_to_today(remind_time);
         SavedAccount.set(SavedAccount.REMIND_TIME, remind_time);
+
         var today = new Date();
         SavedAccount.set(SavedAccount.WHEN_LAST_CHANGED, today);
-        $scope.is_disabled = true;
+
+        // update remind_dict to compute quiz completed time relative to reminder
+        var rel_dict = SavedAccount.get(SavedAccount.RELATIVE_DICT) || {};
+        var key = today.getFullYear() + '-' + today.getMonth() + '-' + today.getDate();
+        rel_dict[key] = remind_time;
+        SavedAccount.set(SavedAccount.RELATIVE_DICT, rel_dict);
 
         // update change list
         var chl = SavedAccount.get(SavedAccount.CHANGE_LIST);
@@ -323,20 +331,42 @@ $scope.toggle_deactivate = function(state) {
   $scope.account = SavedAccount.get(SavedAccount.ACCOUNT);
   $scope.account = $scope.account ? $scope.account : {};
 
-  $scope.show_relative = function(datetime) {
+  $scope.populate_rel_dict = function(datetime) {
+    datetime = new Date(datetime);
+    if (datetime.getDate() !== 8) {
+      return;
+    }
     var quiz_done = new Date(datetime);
     var key = quiz_done.getFullYear() + '-' +
-              (1+quiz_done.getMonth()) + '-' +
-               quiz_done.getDate(); //yyyy-mm-dd
+                quiz_done.getMonth() + '-' +
+                quiz_done.getDate(); //yyyy-mm-dd
 
-    // key,value: date (type: str 'yyyy-mm-dd'), remind_time(type:datetime) on that day
-    var time_dict = SavedAccount.get(SavedAccount.REMIND_DICT) || {};
-    var remind_time = time_dict[key] || SavedAccount.get(SavedAccount.REMIND_TIME);
+    var rel_dict = SavedAccount.get(SavedAccount.RELATIVE_DICT) || {};
+    rel_dict[key] = quiz_done;
+    SavedAccount.set(SavedAccount.RELATIVE_DICT, rel_dict);
+  };
 
-    // var diff = remind_time.getUTCHours() - quiz_done.getUTCHours();
-    // console.log('quiz_done: ', quiz_done);
-    // console.log('diff: ', remind_time - quiz_done);
-    return remind_time - quiz_done < 0 ? 'before reminder' : 'after reminder';
+  $scope.show_relative = function(datetime) {
+    var is_admin_mode = SavedAccount.get(SavedAccount.ADMIN_MODE);
+    if (is_admin_mode) {
+      $scope.populate_rel_dict(datetime)
+    }
+
+    var quiz_done = new Date(datetime);
+    var key = quiz_done.getFullYear() + '-' +
+                quiz_done.getMonth() + '-' +
+                quiz_done.getDate(); //yyyy-mm-dd
+
+    var rel_dict = SavedAccount.get(SavedAccount.RELATIVE_DICT) || {};
+    var remind_time = rel_dict[key] ?
+                          new Date(rel_dict[key]) :
+                          SavedAccount.get(SavedAccount.REMIND_TIME);
+
+    var limit = 15; // number of minutes
+    limit *= 60000;
+
+    var diff = quiz_done - remind_time;
+    return (diff >= 0) && (diff <= limit) ? 'before reminder' : 'after reminder';
   };
 
 
