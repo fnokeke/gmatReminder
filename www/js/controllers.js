@@ -383,7 +383,6 @@ $scope.toggle_deactivate = function(state) {
       if (mins < 3) {
         return $sce.trustAsHtml('Time too short &#10007');
       } else if (mins >= 3) {
-        console.log('html:',$sce.trustAsHtml('3 NIS &#10004').$$unwrapTrustedValue());
         return $sce.trustAsHtml('3 NIS &#10004');
       }
 
@@ -530,12 +529,12 @@ $scope.toggle_deactivate = function(state) {
       code: localStorage.code
     }, function(response) {
 
-      $scope.practices = response.practices;
-      if (!$scope.practices) {
+      if (!response.practices) {
         Helper.show_toast(
           "No updated practice sessions.");
       } else {
         Helper.show_toast("Update successful.");
+        $scope.practices = response.practices;
       }
 
     });
