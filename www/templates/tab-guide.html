@@ -1,18 +1,22 @@
-<ion-view view-title="Guide">
+<ion-view view-title="Guide" cache-view="false">
   <ion-content class="padding">
 
-    <div class="list">
+    <div class="list" ng-show="is_admin">
+
+      <label class="item item-divider positive-bg">
+        Admin Mode
+      </label>
 
       <label class="item item-input item-select">
 
         <div class="input-label">
-          4 Conditions:
+          Choose Condition:
         </div>
 
         <select ng-model="condition" ng-change="get_condition(condition)">
-          <option selected>Deadline/Contingency</option>
+          <option>Deadline/Contingency</option>
           <option>Deadline/NO Contingency</option>
-          <option>NO Deadline/Contingency</option>
+          <option selected>NO Deadline/Contingency</option>
           <option>NO Deadline/NO Contingency</option>
         </select>
 
@@ -20,11 +24,11 @@
 
       <div class="item item-text-wrap">
         <div>
-          has_deadline: {{has_deadline}} <br />
+          Has Deadline: {{has_deadline}}
         </div>
 
         <div>
-        has_contingency: {{has_contingency}}
+          Has Contingeny: {{has_contingency}}
         </div>
       </div>
 

@@ -37,6 +37,41 @@ angular.module('starter.services', ['ngResource'])
     };
   })
 
+  .factory('ConnectivityMonitor', function($rootScope, $cordovaNetwork) {
+
+    return {
+      is_online: function(){
+        if(ionic.Platform.isWebView()){
+          return $cordovaNetwork.isOnline();
+        } else {
+          return navigator.onLine;
+        }
+      },
+
+      start_watching: function(){
+          if (ionic.Platform.isWebView()){
+
+            $rootScope.$on('$cordovaNetwork:online', function(event, networkState){
+              console.log("went online");
+            });
+
+            $rootScope.$on('$cordovaNetwork:offline', function(event, networkState){
+              console.log("went offline");
+            });
+
+          } else {
+
+            window.addEventListener("online", function(e) {
+              console.log("went online");
+            }, false);
+
+            window.addEventListener("offline", function(e) {
+              console.log("went offline");
+            }, false);
+          }
+      }
+    }
+  })
 
   .factory('VeritasServiceHTTP', function ($resource) {
     // var timeout = 5000; //no of milliseconds
@@ -64,24 +99,32 @@ angular.module('starter.services', ['ngResource'])
     return {
 
       'ACCOUNT': 'account',
+      'ADMIN_MODE': 'admin_mode',
       'REMIND_TIME': 'remind_time',
       'PRACTICES': 'practices',
       'WHEN_LAST_CHANGED': 'when_last_changed',
       'CHANGE_LIST': 'change_list',
+      'TIME_DICT': 'time_dict',
+
+      is_admin_mode: function() {
+        console.log('admin_mode called.');
+        console.log('current admin mode: ', this.get('admin_mode'));
+        return this.get(this.ADMIN_MODE);
+      },
 
       is_valid_participant: function () {
         return localStorage.getItem('account');
       },
 
       has_deadline: function() {
-        if (this.get('account')) {
-          return this.get('account').has_deadline;
+        if (this.get(this.ACCOUNT)) {
+          return this.get(this.ACCOUNT).has_deadline;
         }
       },
 
       has_contingency: function() {
-        if (this.get('account')) {
-          return this.get('account').has_contingency;
+        if (this.get(this.ACCOUNT)) {
+          return this.get(this.ACCOUNT).has_contingency;
         }
       },
 

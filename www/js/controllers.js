@@ -22,8 +22,9 @@ angular.module('starter.controllers', [])
 })
 
 .controller('GuideCtrl', function($scope, SavedAccount, $state) {
-  $scope.has_deadline = SavedAccount.get('account').has_deadline;
-  $scope.has_contingency = SavedAccount.get('account').has_contingency;
+  $scope.is_admin = SavedAccount.get(SavedAccount.ADMIN_MODE);
+  $scope.has_deadline = SavedAccount.get(SavedAccount.ACCOUNT).has_deadline;
+  $scope.has_contingency = SavedAccount.get(SavedAccount.ACCOUNT).has_contingency;
 
   $scope.get_condition = function(condition) {
     var account = SavedAccount.get('account');
@@ -55,9 +56,8 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('ReminderCtrl', function($scope, $rootScope, $ionicPlatform,
-  $timeout, $ionicPopup, $cordovaLocalNotification, Helper, SavedAccount,
-  VeritasServiceHTTP) {
+.controller('ReminderCtrl', function($scope, $rootScope, $ionicPlatform, $timeout, $ionicPopup,
+  $cordovaLocalNotification, Helper, SavedAccount, VeritasServiceHTTP, ConnectivityMonitor) {
 
   // SavedAccount.clear_all();
   $scope.load_reminder = function() {
@@ -94,7 +94,6 @@ angular.module('starter.controllers', [])
       return;
     }
 
-    // TODO: prompt users know if they have a wrong code / show error
     // TODO: update server when reminder is set: send timestamp, previous time, current time
     // TODO: participants can practice more than once per day
     // TODO: remove any random functionality to re-enable buttons by double-tapping in hidden place
@@ -110,7 +109,15 @@ angular.module('starter.controllers', [])
     // TODO: add screen busy sign when page is busy
     // TODO: check if offline/online: http://www.nikola-breznjak.com/blog/codeproject/check-network-information-change-with-ionic-famework/
     // TODO: show enable sign when remind time is valid
-    // TODO: prevent change of time even with alarm disabled
+    // TODO: disable user to be able to change alarm within a few minutes from reminder time?
+    // TODO: put refresh button to be on top instead of below
+    // TODO: have a generic string so you can easily change theme across app
+
+    // TODO: fix relative_time
+    // TODO: fix refresh button view
+    // TODO: fix username/password view
+    // TODO: look into flask REST api
+    // TODO: fix tab refresh when clicked
 
     if (!SavedAccount.is_valid_participant()) { // TODO: test that this line works
       Helper.show_toast('First submit participant code then you can set reminder.');
@@ -168,7 +175,7 @@ angular.module('starter.controllers', [])
   }
 
 
-  $scope.toggle_deactivate = function(state) {
+$scope.toggle_deactivate = function(state) {
     state ? $scope.deactivateGMATReminder() : $scope.activateGMATReminder();
   };
 
@@ -308,40 +315,77 @@ angular.module('starter.controllers', [])
 
 })
 
-// code for student (id=1): W05L3yVIw
-// code for student (id=2): ZZAVB37ha
-
-.controller('AccountCtrl', function($scope, $timeout, $cordovaNetwork,
-  $ionicLoading, Helper, SavedAccount, VeritasServiceHTTP) {
-
+.controller('AccountCtrl', function($scope, $timeout, $ionicLoading, $sce, Helper, SavedAccount,
+                                    VeritasServiceHTTP, ConnectivityMonitor) {
   $scope.practices = SavedAccount.get(SavedAccount.PRACTICES);
   $scope.practices = $scope.practices ? $scope.practices : [];
 
   $scope.account = SavedAccount.get(SavedAccount.ACCOUNT);
   $scope.account = $scope.account ? $scope.account : {};
 
-  $scope.show_relative_to_practice = function(day) {
-    var remind_time = SavedAccount.get('remind_time');
-    var today = new Date();
-    var diff = today.getHours() - remind_time.getHours();
-    return diff > 0 ? 'before reminder' : 'after reminder';
-    // var hr_min_str = remind_time.getHours() + ':' + remind_time.getMinutes();
-    // return hr_min_str;
+  $scope.show_relative = function(datetime) {
+    var quiz_done = new Date(datetime);
+    var key = quiz_done.getFullYear() + '-' +
+              (1+quiz_done.getMonth()) + '-' +
+               quiz_done.getDate(); //yyyy-mm-dd
+
+    // key,value: date (type: str 'yyyy-mm-dd'), remind_time(type:datetime) on that day
+    var time_dict = SavedAccount.get(SavedAccount.REMIND_DICT) || {};
+    var remind_time = time_dict[key] || SavedAccount.get(SavedAccount.REMIND_TIME);
+
+    // var diff = remind_time.getUTCHours() - quiz_done.getUTCHours();
+    // console.log('quiz_done: ', quiz_done);
+    // console.log('diff: ', remind_time - quiz_done);
+    return remind_time - quiz_done < 0 ? 'before reminder' : 'after reminder';
   };
 
-  $scope.show_comment = function() {
-    // '2 mins \nafter (&#10007)'
-    //  5 mins<br /> before (&#10004)
-    var account = SavedAccount.get('account');
-    var msg = '';
 
-    if (account.has_deadline && account.has_contingency)
-      msg = '3 NIS';
+  $scope.has_contingency = SavedAccount.get(SavedAccount.ACCOUNT).has_contingency;
+  $scope.show_comment = function(time_spent, questions_solved) {
+    if (parseInt(questions_solved) < 3) {
+      return $sce.trustAsHtml('Questions too few &#10007');
+    }
 
-    return msg
+    if ($scope.has_contingency) {
+      var mins = time_spent.split('m')[0];
+      mins = parseInt(mins.substr(mins.length - 2));
+
+      if (mins < 3) {
+        return $sce.trustAsHtml('Time too short &#10007');
+      } else if (mins >= 3) {
+        console.log('html:',$sce.trustAsHtml('3 NIS &#10004').$$unwrapTrustedValue());
+        return $sce.trustAsHtml('3 NIS &#10004');
+      }
+
+    }
+
   };
 
+  // code for student (id=1): W05L3yVIw
+  // code for student (id=2): ZZAVB37ha
   $scope.submit_code = function(code) {
+    // make sure admin mode is always disabled for every user unless special code used
+    SavedAccount.set(SavedAccount.ADMIN_MODE, false);
+    console.log('submit_code admin_mode: ', SavedAccount.get(SavedAccount.ADMIN_MODE));
+
+    if (code === 'oriactivated1') {
+      code = 'W05L3yVIw';
+      Helper.show_toast('Admin mode activated with practice sessions.');
+      console.log('admin activated after submitting code 1');
+      SavedAccount.set(SavedAccount.ADMIN_MODE, true);
+
+    } else if (code === 'oriactivated2') {
+      code = 'ZZAVB37ha';
+      Helper.show_toast('Admin mode activated.');
+      console.log('admin activated after submitting code 2');
+      SavedAccount.set(SavedAccount.ADMIN_MODE, true);
+    }
+
+    if (!ConnectivityMonitor.is_online()) {
+      Helper.show_toast('You have no network connection.');
+      return;
+    }
+
     if (!code) {
       Helper.show_toast('Cannot submit empty code entry.');
       return;
@@ -435,6 +479,11 @@ angular.module('starter.controllers', [])
   }
 
   $scope.refresh_score = function() {
+    if (!ConnectivityMonitor.is_online()) {
+      Helper.show_toast('You have no network connection.');
+      return;
+    }
+
     if (!SavedAccount.is_valid_participant()) {
       Helper.show_toast(
         'You have no account yet. Submit your code first.');

@@ -1,4 +1,4 @@
-<ion-view view-title="GMAT Practice Reminder">
+<ion-view view-title="GMAT Practice Reminder" cache-view="false">
   <ion-content class="padding">
     <ion-list>
       <div class="list">
@@ -62,18 +62,27 @@
           <div class="col text-center">
             {{practice.percent_correct}} <br /> {{practice.question_count}} questions
           </div>
-          <!-- Relative to practice -->
+
+          <!-- relative to practice col -->
           <div class="col text-center">
-            <span class="balanced">
-             {{show_relative_to_practice()}}
+            <span ng-init="sr = show_relative(practice.taken_on)"
+                  ng-class="sr === 'before reminder' ? 'balanced' : 'assertive'">
+                  {{sr}}
             </span>
           </div>
+
           <!-- comment col -->
+          <!-- change class to balance/green if 3NIS is returned -->
           <div class="col text-center">
-            <span class="assertive">
-             {{show_comment()}}
-            </span>
+            <div ng-init="sc = show_comment(practice.duration, practice.question_count)"
+                  ng-class="sc.$$unwrapTrustedValue().indexOf('3 NIS') > -1
+                                  ? 'balanced' : 'assertive'">
+
+                <span ng-bind-html="sc"> </span>
+
+            </div>
           </div>
+
         </div>
       </ul>
     </ion-list>
