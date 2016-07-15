@@ -107,11 +107,6 @@ angular.module('starter.controllers', [])
     }
 
     // TODO: store all app analytics. Page change, button clicks, EVERYTHING!
-    // TODO: add timeout to requests sent. check link: http://blog.xebia.com/cancelling-http-requests-for-fun-and-profit
-    // TODO: disable user to be able to change alarm within a few minutes from reminder time?
-    // TODO: put refresh button to be on top instead of below
-    // TODO: have a generic string so you can easily change theme across app
-
     // TODO: fix username/password view
     // TODO: add online practice mode to show
 

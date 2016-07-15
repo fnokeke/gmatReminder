@@ -4,6 +4,7 @@
 
     <ion-list>
 
+
       <div class="list">
         <label class="item item-divider positive-bg">
           Veritas Account Login
@@ -11,9 +12,9 @@
 
         <div class="item item-input-inset">
           <label class="item-input-wrapper">
-            <input type="text" placeholder="enter participant code"
-                   ng-model="account.code">
+            <input type="text" placeholder="enter participant code" ng-model="account.code">
           </label>
+
           <button class="button button-small" ng-click="submit_code(account.code)">
             Submit
           </button>
@@ -21,12 +22,13 @@
 
         <label class="item item-input">
           <span class="input-label">Username: </span>
-          <input class="input-class" value="{{account.username}}" ng-disabled="true">
+          <!-- <input class="input-class" value="{{account.username}}" ng-disabled="true"> -->
+          <input type="text" value="{{account.username}}" ng-disabled="true">
         </label>
 
         <label class="item item-input">
           <span class="input-label">Password: </span>
-          <input class="input-class" value="{{account.password}}" ng-disabled="true">
+          <input type="text" value="{{account.password}}" ng-disabled="true">
         </label>
 
       </div>
