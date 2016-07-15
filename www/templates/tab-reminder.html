@@ -13,8 +13,8 @@
                  placeholder="HH:mm" required />
         </label>
 
-        <label class="item item-input" ng-show="is_disabled">
-          <span class="assertive">Cannot change reminder until tomorrow.</span>
+        <label class="item item-input">
+          <span class="assertive">{{reminder_msg}}</span>
         </label>
 
       </div>
@@ -29,7 +29,6 @@
     </ion-list>
 
     <ion-list>
-      <!-- <label class="item item-divider positive-bg" ng-click="activate_admin_mode()"> -->
       <label class="item item-divider positive-bg">
         Deactivate Reminder
       </label>

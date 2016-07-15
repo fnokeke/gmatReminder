@@ -101,10 +101,9 @@ angular.module('starter.services', ['ngResource'])
       'ACCOUNT': 'account',
       'ADMIN_MODE': 'admin_mode',
       'PRACTICES': 'practices',
-      'WHEN_LAST_CHANGED': 'when_last_changed',
-      'CHANGE_LIST': 'change_list',
-      'TIME_DICT': 'time_dict',
+      'REMIND_TIME': 'remind_time',
       'REMINDER_LIMIT': 15,  // number of mins allwed after reminder shoots
+      'WHEN_LAST_CHANGED': 'when_last_changed',
 
       is_admin_mode: function() {
         console.log('admin_mode called.');

@@ -95,6 +95,11 @@ angular.module('starter.controllers', [])
   };
   $scope.load_reminder();
 
+
+  $scope.reminder_msg = $scope.should_disable_reminder()
+                            ? 'Cannot change reminder until tomorrow'
+                            : 'No reminder set';
+
   $scope.save_reminder = function(remind_time) {
     if (remind_time === undefined) {
       Helper.show_toast('Invalid date. Try again');
@@ -109,13 +114,10 @@ angular.module('starter.controllers', [])
 
     // TODO: fix username/password view
     // TODO: add online practice mode to show
-    <!-- TODO: Ask Ori if this option should be available -->
 
     if (!SavedAccount.is_valid_participant()) { // TODO: test that this line works
       Helper.show_toast('First submit participant code then you can set reminder.');
-      console.log('b4 time:', $scope.remind_time);
       $scope.remind_time = null;
-      console.log('after time:', $scope.remind_time);
       return;
     }
 
@@ -128,27 +130,15 @@ angular.module('starter.controllers', [])
     confirmPopup.then(function(answer) {
       if (answer) {
         $scope.is_disabled = true;
+        $scope.reminder_msg = 'Cannot change reminder until tomorrow.';
         remind_time = SavedAccount.adjust_date_to_today(remind_time);
         SavedAccount.set(SavedAccount.REMIND_TIME, remind_time);
 
         var today = new Date();
         SavedAccount.set(SavedAccount.WHEN_LAST_CHANGED, today);
 
-        // update remind_dict to compute quiz completed time relative to reminder
-        var rel_dict = SavedAccount.get(SavedAccount.RELATIVE_DICT) || {};
-        var key = today.getFullYear() + '-' + today.getMonth() + '-' + today.getDate();
-        rel_dict[key] = remind_time;
-        SavedAccount.set(SavedAccount.RELATIVE_DICT, rel_dict);
-
-        // update change list
-        var chl = SavedAccount.get(SavedAccount.CHANGE_LIST);
-        chl = chl ? chl : [];
-
-        var hr_min_str = remind_time.getHours() + ':' + remind_time.getMinutes();
-        chl.push({today: hr_min_str})
-        SavedAccount.set(SavedAccount.CHANGE_LIST, chl);
-
         // save reminder time in server
+        var hr_min_str = remind_time.getHours() + ':' + remind_time.getMinutes();
         VeritasServiceHTTP.reminder().save({
           student_id: SavedAccount.get(SavedAccount.ACCOUNT).student_id,
           remind_time: hr_min_str
@@ -163,7 +153,8 @@ angular.module('starter.controllers', [])
         if (!$scope.deactivate) {
           $scope.activateGMATReminder();
         }
-
+      } else {
+        $scope.reminder_msg = 'You do not have any reminder set.';
       }
 
     });
@@ -194,6 +185,7 @@ $scope.toggle_deactivate = function(state) {
     $scope.activateGMATReminder = function() {
       var remind_time = SavedAccount.get('remind_time');
       if (!remind_time) {
+        console.log('invalid remind_time input: ', remind_time);
         Helper.show_toast("You need to set a reminder time first");
         return;
       }
