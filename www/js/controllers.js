@@ -85,7 +85,6 @@ angular.module('starter.controllers', [])
 
   };
 
-
   $scope.load_reminder = function() {
     $scope.is_disabled = $scope.should_disable_reminder();
     var remind_time = SavedAccount.get(SavedAccount.REMIND_TIME);
@@ -99,6 +98,17 @@ angular.module('starter.controllers', [])
   $scope.reminder_msg = $scope.should_disable_reminder()
                             ? 'Cannot change reminder until tomorrow'
                             : 'No reminder set';
+
+
+  $scope.is_admin = SavedAccount.get(SavedAccount.ADMIN_MODE);
+  console.log('is_admin reminder:', $scope.is_admin);
+
+  $scope.admin_reactivate_button = function() {
+    $scope.is_disabled = false;
+    Helper.show_toast('Save Button re-activated by Admin.');
+  }
+
+
 
   $scope.save_reminder = function(remind_time) {
     if (remind_time === undefined) {

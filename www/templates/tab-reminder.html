@@ -1,4 +1,4 @@
-<ion-view view-title="Reminder">
+<ion-view view-title="Reminder" cache-view="false">
   <ion-content class="padding">
 
     <ion-list>
@@ -40,7 +40,11 @@
       </ion-toggle>
     </ion-list>
 
-    </ion-list>
+    <div class="list" ng-show="is_admin">
+     <button class="button button-dark button-block" ng-click="admin_reactivate_button()">
+       Admin Reactivate Save
+     </button>
+   </div>
 
   </ion-content>
 </ion-view>
