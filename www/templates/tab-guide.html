@@ -28,7 +28,7 @@
         </div>
 
         <div>
-          Has Contingeny: {{has_contingency}}
+          Has Contingency: {{has_contingency}}
         </div>
       </div>
 
@@ -36,16 +36,34 @@
 
 
     <div class="card">
+
       <label class="item item-divider positive-bg">
         Summary
       </label>
 
-      <div class="item item-text-wrap">
-        Install Veritas GMAT app if you haven't.
+      <div class="item item-text-wrap" ng-show="is_mobile">
+
+        <div class="item item-text-wrap" ng-show="is_android">
+          <a href="{{app_link}}" target="_blank">Install</a>
+          Veritas GMAT app if you haven't from Google Playstore.
+        </div>
+
+        <div class="item item-text-wrap" ng-show="!is_android">
+          <a href="{{app_link}}" target="_blank">Install</a>
+          Veritas GMAT app if you haven't from App Store.
+        </div>
+
       </div>
 
+      <div class="item item-text-wrap" ng-show="!is_mobile">
+          <a href="{{app_link}}" target="_blank">Install</a>
+          Veritas GMAT app if you haven't from Google Playstore.
+      </div>
+
+    </div>
+
       <div class="item item-text-wrap">
-        Set as many practice reminders as you desire.
+        Set daily reminder time so you remember to practice.
       </div>
 
       <div class="item item-text-wrap">
@@ -55,7 +73,8 @@
     </div>
 
     <div class="text-center">
-      <button class="button icon-right ion-chevron-right button-energized" ng-click="toGuide()">
+      <button class="button icon-right ion-chevron-right
+              button-energized" ng-click="toGuide()">
         Start Full Guide
       </button>
     </div>
