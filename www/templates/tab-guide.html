@@ -41,26 +41,20 @@
         Summary
       </label>
 
-      <div class="item item-text-wrap" ng-show="is_mobile">
+      <div class="item item-text-wrap">
 
-        <div class="item item-text-wrap" ng-show="is_android">
-          <a href="{{app_link}}" target="_blank">Install</a>
-          Veritas GMAT app if you haven't from Google Playstore.
-        </div>
+        <a href="" ng-click="open_install_link()">Install Veritas GMAT app</a>
 
-        <div class="item item-text-wrap" ng-show="!is_android">
-          <a href="{{app_link}}" target="_blank">Install</a>
-          Veritas GMAT app if you haven't from App Store.
-        </div>
+        <span ng-show="is_android">
+          from Google Playstore if you don't already have it.
+        </span>
+
+        <span ng-show="!is_android">
+          from iOS App Store if you don't already have it.
+        </span>
 
       </div>
 
-      <div class="item item-text-wrap" ng-show="!is_mobile">
-          <a href="{{app_link}}" target="_blank">Install</a>
-          Veritas GMAT app if you haven't from Google Playstore.
-      </div>
-
-    </div>
 
       <div class="item item-text-wrap">
         Set daily reminder time so you remember to practice.
@@ -70,6 +64,7 @@
         Practice at least once a day. Each practice should be at least 3 minutes
         and at least 3 questions covered.
       </div>
+      
     </div>
 
     <div class="text-center">

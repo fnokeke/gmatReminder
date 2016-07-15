@@ -22,12 +22,20 @@ angular.module('starter.controllers', [])
 })
 
 .controller('GuideCtrl', function($scope, $state, SavedAccount, Helper) {
-  $scope.is_admin = SavedAccount.get(SavedAccount.ADMIN_MODE);
-  $scope.has_deadline = SavedAccount.get(SavedAccount.ACCOUNT).has_deadline;
-  $scope.has_contingency = SavedAccount.get(SavedAccount.ACCOUNT).has_contingency;
+  if (SavedAccount.get(SavedAccount.ACCOUNT)) {
+    $scope.is_admin = SavedAccount.get(SavedAccount.ADMIN_MODE);
+    $scope.has_deadline = SavedAccount.get(SavedAccount.ACCOUNT).has_deadline;
+    $scope.has_contingency = SavedAccount.get(SavedAccount.ACCOUNT).has_contingency;
+  }
   $scope.is_mobile = Helper.is_mobile();
   $scope.is_android = Helper.is_android();
   $scope.app_link = Helper.is_ios() ? Helper.IOS_APP_LINK : Helper.ANDROID_APP_LINK;
+
+  $scope.open_install_link = function() {
+    Helper.is_ios()
+      ? Helper.open_url(Helper.IOS_APP_LINK)
+      : Helper.open_url(Helper.ANDROID_APP_LINK);
+  };
 
   $scope.get_condition = function(condition) {
     var account = SavedAccount.get('account');
@@ -62,27 +70,24 @@ angular.module('starter.controllers', [])
 .controller('ReminderCtrl', function($scope, $rootScope, $ionicPlatform, $timeout, $ionicPopup,
   $cordovaLocalNotification, Helper, SavedAccount, VeritasServiceHTTP, ConnectivityMonitor) {
 
-  // SavedAccount.clear_all();
-  $scope.load_reminder = function() {
+  $scope.should_disable_reminder = function() {
     var wlc = SavedAccount.get(SavedAccount.WHEN_LAST_CHANGED);
-    console.log(wlc)
-    if (wlc) {
-      wlc = new Date(wlc);
-      console.log('wlc:', wlc);
-
-      var today = new Date();
-      console.log('today:', today);
-
-      if (today.getDate() === wlc.getDate() && today.getMonth() === wlc.getMonth()) {
-        $scope.is_disabled = true;
-      } else {
-        $scope.is_disabled = false;
-        console.log('Reminder change possible.');
-      }
-    } else {
+    if (!wlc) {
       console.log('wlc is null');
+      return false;
     }
 
+    wlc = new Date(wlc);
+    var today = new Date();
+
+    return today.getDate() === wlc.getDate() &&
+           today.getMonth() === wlc.getMonth();
+
+  };
+
+
+  $scope.load_reminder = function() {
+    $scope.is_disabled = $scope.should_disable_reminder();
     var remind_time = SavedAccount.get(SavedAccount.REMIND_TIME);
     if (remind_time) {
       $scope.remind_time = remind_time;
@@ -91,40 +96,26 @@ angular.module('starter.controllers', [])
   $scope.load_reminder();
 
   $scope.save_reminder = function(remind_time) {
-    console.log('remind_time submitted: ', remind_time);
     if (remind_time === undefined) {
       Helper.show_toast('Invalid date. Try again');
       return;
     }
 
-    // TODO: update server when reminder is set: send timestamp, previous time, current time
-    // TODO: remove any random functionality to re-enable buttons by double-tapping in hidden place
-    // TODO: update how pariticipants receive their daily rewards based on their conditions
-    // TODO: update Relative to Reminder to show number of mins between reminder activated time
-    //     : and time the practice session was complete / if completed before reminder then change
-    //     : it to 'before'
-    // TODO: comment col should either be: empty, "3 NIS" or "Nothing"
-    // TODO: reminder notification: no deadline/no practice else 'reminder to practice in 15 mins'
     // TODO: store all app analytics. Page change, button clicks, EVERYTHING!
-    // TODO: change install link in guide to actual app link
     // TODO: add timeout to requests sent. check link: http://blog.xebia.com/cancelling-http-requests-for-fun-and-profit
-    // TODO: add screen busy sign when page is busy
-    // TODO: check if offline/online: http://www.nikola-breznjak.com/blog/codeproject/check-network-information-change-with-ionic-famework/
-    // TODO: show enable sign when remind time is valid
     // TODO: disable user to be able to change alarm within a few minutes from reminder time?
     // TODO: put refresh button to be on top instead of below
     // TODO: have a generic string so you can easily change theme across app
 
-    // TODO: fix relative_time
-    // TODO: fix refresh button view
     // TODO: fix username/password view
-    // TODO: look into flask REST api
-    // TODO: fix tab refresh when clicked
     // TODO: add online practice mode to show
     <!-- TODO: Ask Ori if this option should be available -->
 
     if (!SavedAccount.is_valid_participant()) { // TODO: test that this line works
       Helper.show_toast('First submit participant code then you can set reminder.');
+      console.log('b4 time:', $scope.remind_time);
+      $scope.remind_time = null;
+      console.log('after time:', $scope.remind_time);
       return;
     }
 
@@ -137,7 +128,7 @@ angular.module('starter.controllers', [])
     confirmPopup.then(function(answer) {
       if (answer) {
         $scope.is_disabled = true;
-        remind_time = Helper.adjust_date_to_today(remind_time);
+        remind_time = SavedAccount.adjust_date_to_today(remind_time);
         SavedAccount.set(SavedAccount.REMIND_TIME, remind_time);
 
         var today = new Date();
@@ -435,28 +426,32 @@ $scope.toggle_deactivate = function(state) {
       };
     }
 
-    $scope.fetch_remote_info(code);
-
-    // show busy signal and timeout
-
-    // Setup the loader
-    // $ionicLoading.show({
-    //   content: 'Loading',
-    //   animation: 'fade-in',
-    //   showBackdrop: true,
-    //   maxWidth: 200,
-    //   showDelay: 0
-    // });
-    //
-    // // Set a timeout to clear loader, however you would actually call the $ionicLoading.hide(); method whenever everything is ready or loaded.
-    // $timeout(function () {
-    //   // $scope.fetch_remote_info(code);
-    //   $ionicLoading.hide();
-    // }, 2000);
-    //
+    $scope.fetch_account_details(code);
   };
 
-  $scope.fetch_remote_info = function(account_code) {
+
+  $scope.give_ui_feedback = function() {
+
+    // just to give nice UI touch
+    // Setup the loader
+    $ionicLoading.show({
+      content: 'Loading',
+      animation: 'fade-in',
+      showBackdrop: true,
+      maxWidth: 200,
+      showDelay: 0
+    });
+
+    // Set a timeout to clear loader
+    $timeout(function () {
+      $ionicLoading.hide();
+    }, 500);
+  };
+
+
+  $scope.fetch_account_details = function(account_code) {
+    $scope.give_ui_feedback();
+
     VeritasServiceHTTP.practice().get({
         code: account_code
       },
@@ -493,6 +488,7 @@ $scope.toggle_deactivate = function(state) {
       });
   };
 
+
   $scope.resetField = function(field) {
     if (field === SavedAccount.REMIND_TIME) {
       $scope.remind_time = SavedAccount.get(SavedAccount.REMIND_TIME);
@@ -509,11 +505,15 @@ $scope.toggle_deactivate = function(state) {
     }
   };
 
+
   $scope.isValidPractice = function(practice) {
     return Math.random() > 0.5;
   }
 
+
   $scope.refresh_score = function() {
+    $scope.give_ui_feedback();
+
     if (!ConnectivityMonitor.is_online()) {
       Helper.show_toast('You have no network connection.');
       return;

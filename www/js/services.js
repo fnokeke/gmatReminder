@@ -87,7 +87,6 @@ angular.module('starter.services', ['ngResource'])
       },
 
       scrape: function () {
-        console.log('scrape called');
         return $resource('http://slm.smalldata.io/gmat/scrape/:code');
       }
 
