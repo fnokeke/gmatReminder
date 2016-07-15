@@ -1,10 +1,14 @@
 <ion-view view-title="GMAT Practice Reminder" cache-view="false">
+
   <ion-content class="padding">
+
     <ion-list>
+
       <div class="list">
         <label class="item item-divider positive-bg">
           Veritas Account Login
         </label>
+
         <div class="item item-input-inset">
           <label class="item-input-wrapper">
             <input type="text" placeholder="enter participant code"
@@ -14,36 +18,28 @@
             Submit
           </button>
         </div>
+
         <label class="item item-input">
           <span class="input-label">Username: </span>
           <input class="input-class" value="{{account.username}}" ng-disabled="true">
         </label>
+
         <label class="item item-input">
           <span class="input-label">Password: </span>
           <input class="input-class" value="{{account.password}}" ng-disabled="true">
         </label>
+
       </div>
+
     </ion-list>
 
     <ion-list>
       <item class="item item-divider positive-bg">
         Practice Review
-      <span class="item-note ion-refresh ion-right dark" ng-click="refresh_score()">Tap to Refresh</span>
+      <span class="item-note ion-right dark" ng-click="refresh_score()">
+        Tap to Refresh <span class='ion-refresh'></span>
+      </span>
       </item>
-
-      <!-- <item class="item item-divider positive-bg">
-        Practice Review
-      <span class="item-note icon-left ion-refresh  dark" ng-click="refresh_score()">Tap to Refresh</span>
-      </item>
- -->
-    <!-- <ion-list class="text-center">
-      <button class="button button-block button-outline icon-right"
-              ng-click="refresh_score()">
-        Refresh
-      </button>
-    </ion-list>
-
- -->
 
       <div class="row stable-bg bar-header">
         <div class="col text-center">
@@ -81,8 +77,8 @@
 
           <!-- relative to practice col -->
           <div class="col text-center">
-            <span ng-init="sr = show_relative(practice.taken_on)"
-                  ng-class="sr === 'before reminder' ? 'balanced' : 'assertive'">
+            <span ng-init="sr = show_relative(practice.taken_on, practice.reminder_when_taken)"
+                  ng-class="sr.indexOf('before') > -1 ? 'balanced' : 'assertive'">
                   {{sr}}
             </span>
           </div>

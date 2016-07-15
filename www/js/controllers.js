@@ -21,10 +21,13 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('GuideCtrl', function($scope, SavedAccount, $state) {
+.controller('GuideCtrl', function($scope, $state, SavedAccount, Helper) {
   $scope.is_admin = SavedAccount.get(SavedAccount.ADMIN_MODE);
   $scope.has_deadline = SavedAccount.get(SavedAccount.ACCOUNT).has_deadline;
   $scope.has_contingency = SavedAccount.get(SavedAccount.ACCOUNT).has_contingency;
+  $scope.is_mobile = Helper.is_mobile();
+  $scope.is_android = Helper.is_android();
+  $scope.app_link = Helper.is_ios() ? Helper.IOS_APP_LINK : Helper.ANDROID_APP_LINK;
 
   $scope.get_condition = function(condition) {
     var account = SavedAccount.get('account');
@@ -95,7 +98,6 @@ angular.module('starter.controllers', [])
     }
 
     // TODO: update server when reminder is set: send timestamp, previous time, current time
-    // TODO: participants can practice more than once per day
     // TODO: remove any random functionality to re-enable buttons by double-tapping in hidden place
     // TODO: update how pariticipants receive their daily rewards based on their conditions
     // TODO: update Relative to Reminder to show number of mins between reminder activated time
@@ -118,6 +120,8 @@ angular.module('starter.controllers', [])
     // TODO: fix username/password view
     // TODO: look into flask REST api
     // TODO: fix tab refresh when clicked
+    // TODO: add online practice mode to show
+    <!-- TODO: Ask Ori if this option should be available -->
 
     if (!SavedAccount.is_valid_participant()) { // TODO: test that this line works
       Helper.show_toast('First submit participant code then you can set reminder.');
@@ -216,16 +220,16 @@ $scope.toggle_deactivate = function(state) {
       var
         timeDiff = alarmTime - currentTime,
         timeFromNow = new Date(currentTime.getTime() + timeDiff),
-        hrsFromNow = Math.round(((timeDiff / (3600 * 1000)) + 0.00001) *
+        hrs_from_now = Math.round(((timeDiff / (3600 * 1000)) + 0.00001) *
           100) / 100, // 2dp
         msg;
 
-      if (hrsFromNow === 1.0) {
+      if (hrs_from_now === 1.0) {
         msg = " (in 1 hour)";
-      } else if (hrsFromNow >= 1.01) {
-        msg = " (in approx " + hrsFromNow + " hrs)";
+      } else if (hrs_from_now >= 1.01) {
+        msg = " (in approx " + hrs_from_now + " hrs)";
       } else {
-        var mins = Math.round(60 * hrsFromNow);
+        var mins = Math.round(60 * hrs_from_now);
         msg = ' (in ' + mins + ' minute';
         msg = mins > 1 ? msg + 's)' : msg + ')';
       }
@@ -331,52 +335,57 @@ $scope.toggle_deactivate = function(state) {
   $scope.account = SavedAccount.get(SavedAccount.ACCOUNT);
   $scope.account = $scope.account ? $scope.account : {};
 
-  $scope.populate_rel_dict = function(datetime) {
-    datetime = new Date(datetime);
-    if (datetime.getDate() !== 8) {
+
+  $scope.show_relative = function(taken_on, reminder_when_taken) {
+    if (!reminder_when_taken || !taken_on)
       return;
+
+    var hr_min = reminder_when_taken.remind_time.split(':'); // hr:mm:ss
+    var remind_time = new Date(reminder_when_taken.created_at); // datetime
+    remind_time.setHours(parseInt(hr_min[0]));
+    remind_time.setMinutes(parseInt(hr_min[1]));
+    var remind_total = remind_time.getHours() * 60 + remind_time.getMinutes();
+
+    taken_on = new Date(taken_on);
+    var taken_total = taken_on.getHours() * 60 + taken_on.getMinutes();
+    var mins_diff = Math.abs(remind_total - taken_total);
+
+    var has_deadline = SavedAccount.get(SavedAccount.ACCOUNT).has_deadline;
+    remind_total = has_deadline
+                      ? remind_total + SavedAccount.REMINDER_LIMIT
+                      : remind_total;
+
+    if (taken_total <= remind_total) {
+       return $scope.convert_display(mins_diff) + ' before reminder';
+    } else {
+       return $scope.convert_display(mins_diff) + ' after reminder';
     }
-    var quiz_done = new Date(datetime);
-    var key = quiz_done.getFullYear() + '-' +
-                quiz_done.getMonth() + '-' +
-                quiz_done.getDate(); //yyyy-mm-dd
-
-    var rel_dict = SavedAccount.get(SavedAccount.RELATIVE_DICT) || {};
-    rel_dict[key] = quiz_done;
-    SavedAccount.set(SavedAccount.RELATIVE_DICT, rel_dict);
-  };
-
-  $scope.show_relative = function(datetime) {
-    var is_admin_mode = SavedAccount.get(SavedAccount.ADMIN_MODE);
-    if (is_admin_mode) {
-      $scope.populate_rel_dict(datetime)
-    }
-
-    var quiz_done = new Date(datetime);
-    var key = quiz_done.getFullYear() + '-' +
-                quiz_done.getMonth() + '-' +
-                quiz_done.getDate(); //yyyy-mm-dd
-
-    var rel_dict = SavedAccount.get(SavedAccount.RELATIVE_DICT) || {};
-    var remind_time = rel_dict[key] ?
-                          new Date(rel_dict[key]) :
-                          SavedAccount.get(SavedAccount.REMIND_TIME);
-
-    var limit = 15; // number of minutes
-    limit *= 60000;
-
-    var diff = quiz_done - remind_time;
-    return (diff >= 0) && (diff <= limit) ? 'before reminder' : 'after reminder';
   };
 
 
-  $scope.has_contingency = SavedAccount.get(SavedAccount.ACCOUNT).has_contingency;
+  $scope.convert_display = function(num_of_mins) {
+    if (num_of_mins <= 1)  {
+      return '1 min';
+    } else if (num_of_mins < 60) {
+      return num_of_mins + ' mins';
+    }
+
+    num_of_hrs = (Math.round(10 * num_of_mins / 60.0)) / 10; // 1dp
+    if (num_of_hrs === 1.0) {
+      return "1 hour";
+    } else if (num_of_hrs >= 1.01) {
+      return num_of_hrs + " hrs";
+    }
+
+  };
+
+
   $scope.show_comment = function(time_spent, questions_solved) {
     if (parseInt(questions_solved) < 3) {
       return $sce.trustAsHtml('Questions too few &#10007');
     }
 
-    if ($scope.has_contingency) {
+    if (SavedAccount.get(SavedAccount.ACCOUNT).has_contingency) {
       var mins = time_spent.split('m')[0];
       mins = parseInt(mins.substr(mins.length - 2));
 
@@ -395,18 +404,15 @@ $scope.toggle_deactivate = function(state) {
   $scope.submit_code = function(code) {
     // make sure admin mode is always disabled for every user unless special code used
     SavedAccount.set(SavedAccount.ADMIN_MODE, false);
-    console.log('submit_code admin_mode: ', SavedAccount.get(SavedAccount.ADMIN_MODE));
 
     if (code === 'oriactivated1') {
       code = 'W05L3yVIw';
       Helper.show_toast('Admin mode activated with practice sessions.');
-      console.log('admin activated after submitting code 1');
       SavedAccount.set(SavedAccount.ADMIN_MODE, true);
 
     } else if (code === 'oriactivated2') {
       code = 'ZZAVB37ha';
       Helper.show_toast('Admin mode activated.');
-      console.log('admin activated after submitting code 2');
       SavedAccount.set(SavedAccount.ADMIN_MODE, true);
     }
 
@@ -468,14 +474,14 @@ $scope.toggle_deactivate = function(state) {
             'has_contingency': response.has_contingency
           };
 
-          localStorage.setItem(SavedAccount.ACCOUNT, JSON.stringify(account));
+          SavedAccount.set(SavedAccount.ACCOUNT, account);
           $scope.account.username = account.username;
           $scope.account.password = account.password;
           Helper.show_toast('Successfully fetched account details.');
         }
 
         if (response.practices) {
-          localStorage.setItem(SavedAccount.PRACTICES, JSON.stringify(response.practices));
+          SavedAccount.set(SavedAccount.PRACTICES, response.practices);
           $scope.practices = response.practices;
         }
       },
@@ -520,23 +526,30 @@ $scope.toggle_deactivate = function(state) {
     }
 
     VeritasServiceHTTP.scrape().get({
-      code: localStorage.code
+      code: SavedAccount.get(SavedAccount.ACCOUNT).code
     }, function(response) {
+      console.log('scrape response:',response);
       Helper.show_toast("No of practices updated:", response.practices_updated);
+    }, function(error) {
+      console.log('error');
     });
 
     VeritasServiceHTTP.practice().get({
-      code: localStorage.code
+      code: SavedAccount.get(SavedAccount.ACCOUNT).code
     }, function(response) {
+      console.log('response:', response)
 
       if (!response.practices) {
-        Helper.show_toast(
-          "No updated practice sessions.");
+        Helper.show_toast('No updated practice sessions.');
       } else {
         Helper.show_toast("Update successful.");
         $scope.practices = response.practices;
+        SavedAccount.set(SavedAccount.PRACTICES, response.practices);
       }
 
+    }, function(error) {
+      Helper.show_toast('Sorry could not refresh. Try again later.');
+      console.log('error:', error);
     });
 
   };

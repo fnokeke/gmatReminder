@@ -87,6 +87,7 @@ angular.module('starter.services', ['ngResource'])
       },
 
       scrape: function () {
+        console.log('scrape called');
         return $resource('http://slm.smalldata.io/gmat/scrape/:code');
       }
 
@@ -100,12 +101,11 @@ angular.module('starter.services', ['ngResource'])
 
       'ACCOUNT': 'account',
       'ADMIN_MODE': 'admin_mode',
-      'REMIND_TIME': 'remind_time',
       'PRACTICES': 'practices',
       'WHEN_LAST_CHANGED': 'when_last_changed',
       'CHANGE_LIST': 'change_list',
       'TIME_DICT': 'time_dict',
-      'RELATIVE_DICT': 'relative_dict',
+      'REMINDER_LIMIT': 15,  // number of mins allwed after reminder shoots
 
       is_admin_mode: function() {
         console.log('admin_mode called.');
