@@ -1,6 +1,6 @@
 angular.module('starter.services', ['ngResource'])
 
-  .factory('Helper', function($timeout) {
+  .factory('Helper', function($timeout, $ionicLoading) {
 
     return {
       IOS_APP_LINK: 'https://itunes.apple.com/us/app/gmat-question-bank/id943136266?mt=8',
@@ -16,6 +16,14 @@ angular.module('starter.services', ['ngResource'])
         } else {
           console.log(text);
         }
+      },
+
+      show_spinner: function() {
+        $ionicLoading.show({template: '<p>Loading...</p><ion-spinner></ion-spinner>'});
+      },
+
+      hide_spinner: function() {
+        $ionicLoading.hide();
       },
 
       is_mobile: function() {

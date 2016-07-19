@@ -323,6 +323,11 @@ $scope.toggle_deactivate = function(state) {
   $scope.account = SavedAccount.get(SavedAccount.ACCOUNT);
   $scope.account = $scope.account ? $scope.account : {};
 
+  $scope.to_israel_tz = function(datetime) {
+    var dd = new Date(datetime);
+    dd.setHours(dd.getHours() + 7);
+    return dd;
+  };
 
   $scope.show_relative = function(taken_on, reminder_when_taken) {
     if (!reminder_when_taken || !taken_on)
@@ -368,6 +373,7 @@ $scope.toggle_deactivate = function(state) {
   };
 
 
+  // TODO: fix part of alarm and then show checkmark when things happen
   $scope.show_comment = function(time_spent, questions_solved) {
     if (parseInt(questions_solved) < 3) {
       return $sce.trustAsHtml('Questions too few &#10007');
@@ -391,6 +397,7 @@ $scope.toggle_deactivate = function(state) {
   // code for student (id=2): ZZAVB37ha
   $scope.submit_code = function(code) {
     // make sure admin mode is always disabled for every user unless special code used
+    Helper.show_spinner();
     SavedAccount.set(SavedAccount.ADMIN_MODE, false);
 
     if (code === 'oriactivated1') {
@@ -406,11 +413,13 @@ $scope.toggle_deactivate = function(state) {
 
     if (!ConnectivityMonitor.is_online()) {
       Helper.show_toast('You have no network connection.');
+      Helper.hide_spinner();
       return;
     }
 
     if (!code) {
       Helper.show_toast('Cannot submit empty code entry.');
+      Helper.hide_spinner();
       return;
     }
 
@@ -423,31 +432,12 @@ $scope.toggle_deactivate = function(state) {
       };
     }
 
-    $scope.fetch_account_details(code);
+    $scope.fetch_account_details(code, first_time=true);
+    Helper.hide_spinner();
   };
 
 
-  $scope.give_ui_feedback = function() {
-
-    // just to give nice UI touch
-    // Setup the loader
-    $ionicLoading.show({
-      content: 'Loading',
-      animation: 'fade-in',
-      showBackdrop: true,
-      maxWidth: 200,
-      showDelay: 0
-    });
-
-    // Set a timeout to clear loader
-    $timeout(function () {
-      $ionicLoading.hide();
-    }, 500);
-  };
-
-
-  $scope.fetch_account_details = function(account_code) {
-    $scope.give_ui_feedback();
+  $scope.fetch_account_details = function(account_code, first_time) {
 
     VeritasServiceHTTP.practice().get({
         code: account_code
@@ -469,7 +459,9 @@ $scope.toggle_deactivate = function(state) {
           SavedAccount.set(SavedAccount.ACCOUNT, account);
           $scope.account.username = account.username;
           $scope.account.password = account.password;
-          Helper.show_toast('Successfully fetched account details.');
+          if (first_time) {
+            Helper.show_toast('Successfully fetched account details.');
+          }
         }
 
         if (response.practices) {
@@ -509,44 +501,37 @@ $scope.toggle_deactivate = function(state) {
 
 
   $scope.refresh_score = function() {
-    $scope.give_ui_feedback();
+    Helper.show_spinner();
 
     if (!ConnectivityMonitor.is_online()) {
       Helper.show_toast('You have no network connection.');
+      Helper.hide_spinner();
       return;
     }
 
     if (!SavedAccount.is_valid_participant()) {
       Helper.show_toast(
         'You have no account yet. Submit your code first.');
+      Helper.hide_spinner();
       return;
     }
 
     VeritasServiceHTTP.scrape().get({
       code: SavedAccount.get(SavedAccount.ACCOUNT).code
-    }, function(response) {
-      console.log('scrape response:',response);
-      Helper.show_toast("No of practices updated:", response.practices_updated);
-    }, function(error) {
-      console.log('error');
-    });
+    },
+    function(success) {
+      console.log('scrape response:', success);
+      success.practices_updated > 0
+                  ? Helper.show_toast("Updated: " + response.practices_updated + 'practice session(s).')
+                  : Helper.show_toast('No updated sessions.');
+      $scope.fetch_account_details(SavedAccount.get(SavedAccount.ACCOUNT).code);
+      Helper.hide_spinner();
+    },
+    function(error) {
+      Helper.hide_spinner();
 
-    VeritasServiceHTTP.practice().get({
-      code: SavedAccount.get(SavedAccount.ACCOUNT).code
-    }, function(response) {
-      console.log('response:', response)
-
-      if (!response.practices) {
-        Helper.show_toast('No updated practice sessions.');
-      } else {
-        Helper.show_toast("Update successful.");
-        $scope.practices = response.practices;
-        SavedAccount.set(SavedAccount.PRACTICES, response.practices);
-      }
-
-    }, function(error) {
+      console.log('error', error);
       Helper.show_toast('Sorry could not refresh. Try again later.');
-      console.log('error:', error);
     });
 
   };

@@ -46,22 +46,30 @@
       <div class="row stable-bg bar-header">
         <div class="col text-center">
           <h5>
-            Duration
+            <b>
+            DURATION
+            </b>
           </h5>
         </div>
         <div class="col text-center ">
           <h5>
-            Score
+            <b>
+            SCORE
+            </b>
           </h5>
         </div>
         <div class="col text-center">
           <h5>
-            Relative
+            <b>
+            RELATIVE
+            </b>
           </h5>
         </div>
         <div class="col text-center">
           <h5>
-            Comment
+            <b>
+            COMMENT
+            </b>
           </h5>
         </div>
       </div>
@@ -70,7 +78,7 @@
         <div class="row stable-bg">
           <div class="col text-center">
             {{practice.duration}} <br>
-            ({{practice.taken_on | date: "MMM d, h:mma" }})
+            ({{ to_israel_tz(practice.taken_on) | date: "MMM d, h:mma" }}) <br />
           </div>
           <div class="col text-center" ng-init="q = practice.question_count">
             {{practice.percent_correct}} <br />
