@@ -117,8 +117,7 @@ angular.module('starter.controllers', [])
     }
 
     // TODO: store all app analytics. Page change, button clicks, EVERYTHING!
-    // TODO: add online practice mode to show
-    if (!SavedAccount.is_valid_participant()) { // TODO: test that this line works
+    if (!SavedAccount.is_valid_participant()) {
       Helper.show_toast('First submit participant code then you can set reminder.');
       $scope.remind_time = null;
       return;
@@ -161,7 +160,7 @@ angular.module('starter.controllers', [])
   };
 
 
-  $scope.activate_admin_mode = function() { // TODO: Remove this hack part
+  $scope.activate_admin_mode = function() {
     console.log('admin mode activated');
     $scope.is_disabled = false;
     Helper.show_toast("admin mode granted.");
@@ -377,22 +376,23 @@ $scope.toggle_deactivate = function(state) {
   };
 
 
-  // TODO: fix part of alarm and then show checkmark when things happen
   $scope.show_comment = function(time_spent, questions_solved) {
     if (parseInt(questions_solved) < 3) {
       return $sce.trustAsHtml('Questions too few &#10007');
     }
 
-    if (SavedAccount.get(SavedAccount.ACCOUNT).has_contingency) {
-      var mins = time_spent.split('m')[0];
-      mins = parseInt(mins.substr(mins.length - 2));
+    var mins = time_spent.split('m')[0];
+    mins = parseInt(mins.substr(mins.length - 2));
 
-      if (mins < 3) {
-        return $sce.trustAsHtml('Time too short &#10007');
-      } else if (mins >= 3) {
-        return $sce.trustAsHtml('3 NIS &#10004');
-      }
-
+    // if user spent a short amount of time then practice session is invalid
+    // if they spent the minimum time required then show 3 NIS if user has contingency
+    // otherwise just show checkmark
+    if (mins < 3) {
+      return $sce.trustAsHtml('Time too short &#10007');
+    } else if (SavedAccount.get(SavedAccount.ACCOUNT).has_contingency) {
+      return $sce.trustAsHtml('3 NIS &#10004');
+    } else {
+      return $sce.trustAsHtml('&#10004');
     }
 
   };
