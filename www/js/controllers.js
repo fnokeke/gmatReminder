@@ -57,9 +57,9 @@ angular.module('starter.controllers', [])
       account.has_contingency = false;
     }
 
-    SavedAccount.set('account', account);
-    $scope.has_deadline = SavedAccount.get('account').has_deadline
-    $scope.has_contingency = SavedAccount.get('account').has_contingency
+    SavedAccount.set(SavedAccount.ACCOUNT, account);
+    $scope.has_deadline = SavedAccount.get(SavedAccount.ACCOUNT).has_deadline
+    $scope.has_contingency = SavedAccount.get(SavedAccount.ACCOUNT).has_contingency
   };
 
   $scope.toGuide = function() {
@@ -67,8 +67,8 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('ReminderCtrl', function($scope, $rootScope, $ionicPlatform, $timeout, $ionicPopup,
-  $cordovaLocalNotification, Helper, SavedAccount, VeritasServiceHTTP, ConnectivityMonitor) {
+.controller('ReminderCtrl', function($scope, $rootScope, $ionicPlatform, $ionicPopup,
+  $cordovaLocalNotification, Helper, SavedAccount, VeritasHTTP, ConnectivityMonitor) {
 
   $scope.should_disable_reminder = function() {
     var wlc = SavedAccount.get(SavedAccount.WHEN_LAST_CHANGED);
@@ -94,11 +94,8 @@ angular.module('starter.controllers', [])
   };
   $scope.load_reminder();
 
-
-  $scope.reminder_msg = $scope.should_disable_reminder()
-                            ? 'Cannot change reminder until tomorrow'
-                            : 'No reminder set';
-
+  if ($scope.should_disable_reminder())
+    $scope.reminder_msg = 'Cannot change reminder until tomorrow';
 
   $scope.is_admin = SavedAccount.get(SavedAccount.ADMIN_MODE);
   console.log('is_admin reminder:', $scope.is_admin);
@@ -108,18 +105,19 @@ angular.module('starter.controllers', [])
     Helper.show_toast('Save Button re-activated by Admin.');
   }
 
-
-
   $scope.save_reminder = function(remind_time) {
+    if (!ConnectivityMonitor.is_online()) {
+      Helper.show_toast('You need network connection to save reminder.');
+      return;
+    }
+
     if (remind_time === undefined) {
       Helper.show_toast('Invalid date. Try again');
       return;
     }
 
     // TODO: store all app analytics. Page change, button clicks, EVERYTHING!
-    // TODO: fix username/password view
     // TODO: add online practice mode to show
-
     if (!SavedAccount.is_valid_participant()) { // TODO: test that this line works
       Helper.show_toast('First submit participant code then you can set reminder.');
       $scope.remind_time = null;
@@ -144,17 +142,13 @@ angular.module('starter.controllers', [])
 
         // save reminder time in server
         var hr_min_str = remind_time.getHours() + ':' + remind_time.getMinutes();
-        VeritasServiceHTTP.reminder().save({
+        VeritasHTTP.query().save_reminder({
           student_id: SavedAccount.get(SavedAccount.ACCOUNT).student_id,
           remind_time: hr_min_str
         }, function(success_resp) {
             console.log("reminder time successfully saved; response = ", success_resp);
-        }, function(fail_resp) {
-            console.log("failed to set reminder:", fail_resp);
         });
 
-        // TODO: check that there is internet connection before saving
-        // TODO: if not put a flag to save when network is back
         if (!$scope.deactivate) {
           $scope.activateGMATReminder();
         }
@@ -184,11 +178,20 @@ $scope.toggle_deactivate = function(state) {
     $scope.deactivateGMATReminder = function() {
       $cordovaLocalNotification.cancel(999).then(function(result) {
         Helper.show_toast("Reminder deactivated.");
+
+        var hr_min_str = '00:00:00:XXXX'
+        VeritasHTTP.query().save_reminder({
+          student_id: SavedAccount.get(SavedAccount.ACCOUNT).student_id,
+          remind_time: hr_min_str
+        }, function(success_resp) {
+            console.log("deactivate successfully saved; response = ", success_resp);
+        });
+
       });
     };
 
     $scope.activateGMATReminder = function() {
-      var remind_time = SavedAccount.get('remind_time');
+      var remind_time = SavedAccount.get(SavedAccount.REMIND_TIME);
       if (!remind_time) {
         console.log('invalid remind_time input: ', remind_time);
         Helper.show_toast("You need to set a reminder time first");
@@ -315,8 +318,8 @@ $scope.toggle_deactivate = function(state) {
 
 })
 
-.controller('AccountCtrl', function($scope, $timeout, $ionicLoading, $sce, Helper, SavedAccount,
-                                    VeritasServiceHTTP, ConnectivityMonitor) {
+.controller('AccountCtrl', function($scope, $sce, Helper, SavedAccount,
+                                    VeritasHTTP, ConnectivityMonitor) {
   $scope.practices = SavedAccount.get(SavedAccount.PRACTICES);
   $scope.practices = $scope.practices ? $scope.practices : [];
 
@@ -328,6 +331,7 @@ $scope.toggle_deactivate = function(state) {
     dd.setHours(dd.getHours() + 7);
     return dd;
   };
+
 
   $scope.show_relative = function(taken_on, reminder_when_taken) {
     if (!reminder_when_taken || !taken_on)
@@ -396,6 +400,7 @@ $scope.toggle_deactivate = function(state) {
   // code for student (id=1): W05L3yVIw
   // code for student (id=2): ZZAVB37ha
   $scope.submit_code = function(code) {
+
     // make sure admin mode is always disabled for every user unless special code used
     Helper.show_spinner();
     SavedAccount.set(SavedAccount.ADMIN_MODE, false);
@@ -439,11 +444,11 @@ $scope.toggle_deactivate = function(state) {
 
   $scope.fetch_account_details = function(account_code, first_time) {
 
-    VeritasServiceHTTP.practice().get({
+    VeritasHTTP.query().get_account({
         code: account_code
       },
 
-      function(response) {
+      function(response) { // success
         console.log("Success! Student info:", response);
 
         if (response.account) {
@@ -470,10 +475,9 @@ $scope.toggle_deactivate = function(state) {
         }
       },
 
-      function(response) {
-        console.log("Failed. Response:", response);
+      function(fail_resp) { // failure
         $scope.resetField(SavedAccount.ACCOUNT);
-        Helper.show_toast('Invalid code. Try again.');
+        Helper.show_toast('Invalid code.');
       });
   };
 
@@ -516,7 +520,7 @@ $scope.toggle_deactivate = function(state) {
       return;
     }
 
-    VeritasServiceHTTP.scrape().get({
+    VeritasHTTP.query().scrape_account({
       code: SavedAccount.get(SavedAccount.ACCOUNT).code
     },
     function(success) {
@@ -526,12 +530,6 @@ $scope.toggle_deactivate = function(state) {
                   : Helper.show_toast('No updated sessions.');
       $scope.fetch_account_details(SavedAccount.get(SavedAccount.ACCOUNT).code);
       Helper.hide_spinner();
-    },
-    function(error) {
-      Helper.hide_spinner();
-
-      console.log('error', error);
-      Helper.show_toast('Sorry could not refresh. Try again later.');
     });
 
   };

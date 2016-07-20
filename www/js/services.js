@@ -19,7 +19,9 @@ angular.module('starter.services', ['ngResource'])
       },
 
       show_spinner: function() {
-        $ionicLoading.show({template: '<p>Loading...</p><ion-spinner></ion-spinner>'});
+        $ionicLoading.show({
+          template: '<p>One moment...</p><ion-spinner icon="lines"></ion-spinner>'
+        });
       },
 
       hide_spinner: function() {
@@ -44,6 +46,7 @@ angular.module('starter.services', ['ngResource'])
 
     };
   })
+
 
   .factory('ConnectivityMonitor', function($rootScope, $cordovaNetwork) {
 
@@ -81,21 +84,50 @@ angular.module('starter.services', ['ngResource'])
     }
   })
 
-  .factory('VeritasServiceHTTP', function ($resource) {
-    // var timeout = 5000; //no of milliseconds
+
+  .factory('VeritasHTTP', function ($resource, Helper) {
 
     return {
-      practice: function () {
-        return $resource('http://slm.smalldata.io/gmat/api/student/:code');
-                          // {'timeout': timeout});
-      },
 
-      reminder: function() {
-        return $resource('http://slm.smalldata.io/gmat/api/reminder');
-      },
+      'query': function () {
 
-      scrape: function () {
-        return $resource('http://slm.smalldata.io/gmat/scrape/:code');
+        var TIMEOUT = 2000; //no of milliseconds
+        var resource_error_handler = function(error) {
+          Helper.hide_spinner(); // hide spinner in case of any active ones
+          Helper.show_toast('Sorry, could not continue. Try again.');
+          console.log('response error:', error);
+        };
+
+        return $resource('', {}, {
+
+          'get_account': {
+                method: 'GET',
+                url: 'http://slm.smalldata.io/gmat/api/student/:code',
+                timeout: TIMEOUT,
+                interceptor: {
+                  responseError: resource_error_handler
+                }
+          },
+
+          'scrape_account': {
+                method: 'GET',
+                url: 'http://slm.smalldata.io/gmat/scrape/:code',
+                timeout: TIMEOUT,
+                interceptor: {
+                  responseError: resource_error_handler
+                }
+          },
+
+          'save_reminder': {
+                method: 'POST',
+                url: 'http://slm.smalldata.io/gmat/api/reminder',
+                timeout: TIMEOUT,
+                interceptor: {
+                  responseError: resource_error_handler
+                }
+          }
+
+        });
       }
 
     };
