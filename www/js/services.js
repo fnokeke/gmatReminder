@@ -37,7 +37,7 @@ angular.module('starter.services', ['ngResource'])
         var _this = this;
         $timeout(function () {
           _this.hide_spinner();
-        }, 300);
+        }, 500);
       },
 
 
@@ -104,7 +104,7 @@ angular.module('starter.services', ['ngResource'])
 
       'query': function () {
 
-        var TIMEOUT = 300; //no of milliseconds
+        var TIMEOUT = 1000; //no of milliseconds
         var resource_error_handler = function(error) {
           Helper.hide_spinner(); // hide spinner in case of any active ones
           console.log('response error log:', error);
@@ -124,7 +124,7 @@ angular.module('starter.services', ['ngResource'])
           'scrape_account': {
                 method: 'GET',
                 url: 'http://slm.smalldata.io/gmat/scrape/:code',
-                timeout: TIMEOUT * 400, // needs more time so using 2 mins
+                timeout: TIMEOUT * 3, // needs more time bcos of server ops 
                 interceptor: {
                   responseError: resource_error_handler
                 }

@@ -400,9 +400,9 @@ $scope.toggle_deactivate = function(state) {
   // code for student (id=1): W05L3yVIw
   // code for student (id=2): ZZAVB37ha
   $scope.submit_code = function(code) {
+    Helper.show_and_hide_spinner();
 
     // make sure admin mode is always disabled for every user unless special code used
-    Helper.show_spinner();
     SavedAccount.set(SavedAccount.ADMIN_MODE, false);
 
     if (code === 'oriactivated1') {
@@ -418,13 +418,11 @@ $scope.toggle_deactivate = function(state) {
 
     if (!ConnectivityMonitor.is_online()) {
       Helper.show_toast('You have no network connection.');
-      Helper.hide_spinner();
       return;
     }
 
     if (!code) {
       Helper.show_toast('Cannot submit empty code entry.');
-      Helper.hide_spinner();
       return;
     }
 
@@ -438,7 +436,6 @@ $scope.toggle_deactivate = function(state) {
     }
 
     $scope.fetch_account_details(code, first_time=true);
-    Helper.hide_spinner();
   };
 
 
