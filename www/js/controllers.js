@@ -317,7 +317,7 @@ $scope.toggle_deactivate = function(state) {
 
 })
 
-.controller('AccountCtrl', function($scope, $sce, Helper, SavedAccount,
+.controller('AccountCtrl', function($scope, $interval, $sce, Helper, SavedAccount,
                                     VeritasHTTP, ConnectivityMonitor) {
   $scope.practices = SavedAccount.get(SavedAccount.PRACTICES);
   $scope.practices = $scope.practices ? $scope.practices : [];
@@ -520,6 +520,11 @@ $scope.toggle_deactivate = function(state) {
       return;
     }
 
+    $scope.scrape_and_get_practice();
+    Helper.hide_spinner();
+  };
+
+  $scope.scrape_and_get_practice = function () {
     VeritasHTTP.query().scrape_account({
       code: SavedAccount.get(SavedAccount.ACCOUNT).code
     },
@@ -529,9 +534,14 @@ $scope.toggle_deactivate = function(state) {
                   ? Helper.show_toast("Updated: " + response.practices_updated + 'practice session(s).')
                   : Helper.show_toast('No updated sessions.');
       $scope.fetch_account_details(SavedAccount.get(SavedAccount.ACCOUNT).code);
-      Helper.hide_spinner();
     });
 
   };
+
+  $interval(
+    $scope.scrape_and_get_practice,
+    SavedAccount.REMINDER_LIMIT * 60 * 1000 // called every milliseconds interval
+  );
+
 
 });
