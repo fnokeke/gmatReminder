@@ -18,15 +18,28 @@ angular.module('starter.services', ['ngResource'])
         }
       },
 
+
       show_spinner: function() {
         $ionicLoading.show({
           template: '<p>One moment...</p><ion-spinner icon="lines"></ion-spinner>'
         });
       },
 
+
       hide_spinner: function() {
         $ionicLoading.hide();
       },
+
+
+      show_and_hide_spinner: function() {
+        this.show_spinner();
+
+        var _this = this;
+        $timeout(function () {
+          _this.hide_spinner();
+        }, 300);
+      },
+
 
       is_mobile: function() {
         return this.is_android() || this.is_ios();
@@ -94,7 +107,6 @@ angular.module('starter.services', ['ngResource'])
         var TIMEOUT = 300; //no of milliseconds
         var resource_error_handler = function(error) {
           Helper.hide_spinner(); // hide spinner in case of any active ones
-          // Helper.show_toast('Sorry, could not continue. Try again.');
           console.log('response error log:', error);
         };
 
@@ -112,7 +124,7 @@ angular.module('starter.services', ['ngResource'])
           'scrape_account': {
                 method: 'GET',
                 url: 'http://slm.smalldata.io/gmat/scrape/:code',
-                timeout: TIMEOUT,
+                timeout: TIMEOUT * 400, // needs more time so using 2 mins
                 interceptor: {
                   responseError: resource_error_handler
                 }

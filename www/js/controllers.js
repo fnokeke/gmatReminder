@@ -505,7 +505,7 @@ $scope.toggle_deactivate = function(state) {
 
 
   $scope.refresh_score = function() {
-    Helper.show_spinner();
+    Helper.show_and_hide_spinner();
 
     if (!ConnectivityMonitor.is_online()) {
       Helper.show_toast('You have no network connection.');
@@ -514,17 +514,16 @@ $scope.toggle_deactivate = function(state) {
     }
 
     if (!SavedAccount.is_valid_participant()) {
-      Helper.show_toast(
-        'You have no account yet. Submit your code first.');
+      Helper.show_toast('You have no account yet. Submit your code first.');
       Helper.hide_spinner();
       return;
     }
 
     $scope.scrape_and_get_practice();
-    Helper.hide_spinner();
   };
 
   $scope.scrape_and_get_practice = function () {
+    console.log('scrape and get called.');
     VeritasHTTP.query().scrape_account({
       code: SavedAccount.get(SavedAccount.ACCOUNT).code
     },
