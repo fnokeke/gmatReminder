@@ -91,11 +91,11 @@ angular.module('starter.services', ['ngResource'])
 
       'query': function () {
 
-        var TIMEOUT = 2000; //no of milliseconds
+        var TIMEOUT = 300; //no of milliseconds
         var resource_error_handler = function(error) {
           Helper.hide_spinner(); // hide spinner in case of any active ones
-          Helper.show_toast('Sorry, could not continue. Try again.');
-          console.log('response error:', error);
+          // Helper.show_toast('Sorry, could not continue. Try again.');
+          console.log('response error log:', error);
         };
 
         return $resource('', {}, {
