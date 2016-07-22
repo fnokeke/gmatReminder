@@ -534,10 +534,5 @@ $scope.toggle_deactivate = function(state) {
 
   };
 
-  $interval(
-    $scope.scrape_and_get_practice,
-    SavedAccount.REMINDER_LIMIT * 60 * 1000 // called every milliseconds interval
-  );
-
 
 });
