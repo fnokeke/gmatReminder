@@ -124,7 +124,7 @@ angular.module('starter.services', ['ngResource'])
           'scrape_account': {
                 method: 'GET',
                 url: 'http://slm.smalldata.io/gmat/scrape/:code',
-                timeout: TIMEOUT * 3, // needs more time bcos of server ops 
+                timeout: TIMEOUT * 60, // needs more time bcos of server ops
                 interceptor: {
                   responseError: resource_error_handler
                 }

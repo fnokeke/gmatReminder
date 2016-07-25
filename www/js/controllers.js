@@ -520,17 +520,17 @@ $scope.toggle_deactivate = function(state) {
   };
 
   $scope.scrape_and_get_practice = function () {
-    console.log('scrape and get called.');
     VeritasHTTP.query().scrape_account({
       code: SavedAccount.get(SavedAccount.ACCOUNT).code
     },
     function(success) {
       console.log('scrape response:', success);
       success.practices_updated > 0
-                  ? Helper.show_toast("Updated: " + response.practices_updated + 'practice session(s).')
+                  ? Helper.show_toast("Updated: " + success.practices_updated + ' practice session(s).')
                   : Helper.show_toast('No updated sessions.');
       $scope.fetch_account_details(SavedAccount.get(SavedAccount.ACCOUNT).code);
-    });
+    }
+  );
 
   };
 
