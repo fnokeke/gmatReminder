@@ -17,9 +17,10 @@ scp /Users/fnokeke/dev/ionic-apps/gmatReminder/platforms/android/build/outputs/a
 
 
 echo "*************************"
-echo "Now launching xcode project"
+echo "Now launching xcode project and itunes connect website"
 echo "*************************"
 open "/Users/fnokeke/dev/ionic-apps/gmatReminder/platforms/ios/Gmat Reminder.xcodeproj"
+open "https://itunesconnect.apple.com"
 
 
 echo "*************************"
