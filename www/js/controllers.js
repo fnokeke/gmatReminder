@@ -376,7 +376,8 @@ $scope.toggle_deactivate = function(state) {
   };
 
 
-  $scope.show_comment = function(time_spent, questions_solved) {
+  var unique_dates = {};
+  $scope.show_comment = function(time_spent, questions_solved, taken_on) {
     if (parseInt(questions_solved) < 3) {
       return $sce.trustAsHtml('Questions too few &#10007');
     }
@@ -387,10 +388,19 @@ $scope.toggle_deactivate = function(state) {
     // if user spent a short amount of time then practice session is invalid
     // if they spent the minimum time required then show 3 NIS if user has contingency
     // otherwise just show checkmark
+    // 3 NIS reward is received only once per day. Any other valid session receives no reward
     if (mins < 3) {
       return $sce.trustAsHtml('Time too short &#10007');
     } else if (SavedAccount.get(SavedAccount.ACCOUNT).has_contingency) {
-      return $sce.trustAsHtml('3 NIS &#10004');
+      var key = new Date(taken_on)
+      key = key.getFullYear() + '-' + key.getMonth() + '-' + key.getDate();
+      if (key in unique_dates) {
+        return $sce.trustAsHtml('&#10004');
+      } else {
+        unique_dates[key] = 1
+        return $sce.trustAsHtml('3 NIS &#10004');
+      }
+
     } else {
       return $sce.trustAsHtml('&#10004');
     }

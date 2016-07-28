@@ -96,7 +96,7 @@
           <!-- comment col -->
           <!-- change class to balance/green if 3NIS is returned -->
           <div class="col text-center">
-            <div ng-init="sc = show_comment(practice.duration, practice.question_count)"
+            <div ng-init="sc = show_comment(practice.duration, practice.question_count, practice.taken_on)"
                   ng-class="sc.$$unwrapTrustedValue().indexOf('#10004') > -1
                                   ? 'balanced' : 'assertive'">
 
