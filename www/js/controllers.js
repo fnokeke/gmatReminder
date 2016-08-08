@@ -87,10 +87,9 @@ angular.module('starter.controllers', [])
 
   $scope.load_reminder = function() {
     $scope.is_disabled = $scope.should_disable_reminder();
+    console.log(SavedAccount.REMIND_TIME);
     var remind_time = SavedAccount.get(SavedAccount.REMIND_TIME);
-    if (remind_time) {
-      $scope.remind_time = remind_time;
-    }
+    $scope.remind_time = remind_time;
   };
   $scope.load_reminder();
 
@@ -105,13 +104,13 @@ angular.module('starter.controllers', [])
     Helper.show_toast('Save Button re-activated by Admin.');
   }
 
-  $scope.save_reminder = function(remind_time) {
+  $scope.save_reminder = function(remind_time_arg) {
     if (!ConnectivityMonitor.is_online()) {
       Helper.show_toast('You need network connection to save reminder.');
       return;
     }
 
-    if (remind_time === undefined) {
+    if (remind_time_arg === undefined) {
       Helper.show_toast('Invalid date. Try again');
       return;
     }
@@ -129,23 +128,38 @@ angular.module('starter.controllers', [])
       template: 'Are you sure you want to set reminder?'
     });
 
+    // TODO: offline logging management
+    var curr_remind_time = $scope.remind_time;
+    console.log('curr_remind_time:', curr_remind_time);
+
     confirmPopup.then(function(answer) {
       if (answer) {
-        $scope.is_disabled = true;
-        $scope.reminder_msg = 'Cannot change reminder until tomorrow.';
-        remind_time = SavedAccount.adjust_date_to_today(remind_time);
-        SavedAccount.set(SavedAccount.REMIND_TIME, remind_time);
 
-        var today = new Date();
-        SavedAccount.set(SavedAccount.WHEN_LAST_CHANGED, today);
+        var remind_time = SavedAccount.adjust_date_to_today(remind_time_arg);
+        var hr_min_str = remind_time.getHours() + ':' + remind_time.getMinutes();
 
         // save reminder time in server
-        var hr_min_str = remind_time.getHours() + ':' + remind_time.getMinutes();
         VeritasHTTP.query().save_reminder({
           student_id: SavedAccount.get(SavedAccount.ACCOUNT).student_id,
           remind_time: hr_min_str
         }, function(success_resp) {
-            console.log("reminder time successfully saved; response = ", success_resp);
+            var today = new Date();
+            SavedAccount.set(SavedAccount.WHEN_LAST_CHANGED, today);
+
+            SavedAccount.set(SavedAccount.REMIND_TIME, remind_time);
+            console.log('remind time set:', remind_time);
+
+            $scope.is_disabled = true;
+            $scope.reminder_msg = 'Cannot change reminder until tomorrow.';
+            Helper.show_toast('Reminder successfully saved.');
+        }, function(error_resp) {
+            Helper.show_toast("Uh oh, can't update reminder. Pls contact Admin.");
+            console.log(error_resp);
+
+            // $scope.remind_time = curr_remind_time;
+            $scope.remind_time = null;
+            $scope.is_disabled = false;
+            $scope.reminder_msg = 'Reminder failed to set. Pls contact Admin.';
         });
 
         if (!$scope.deactivate) {
@@ -192,8 +206,7 @@ $scope.toggle_deactivate = function(state) {
     $scope.activateGMATReminder = function() {
       var remind_time = SavedAccount.get(SavedAccount.REMIND_TIME);
       if (!remind_time) {
-        console.log('invalid remind_time input: ', remind_time);
-        Helper.show_toast("You need to set a reminder time first");
+        Helper.show_toast("Cannot activate reminder until time is set.");
         return;
       }
 

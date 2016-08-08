@@ -104,17 +104,21 @@ angular.module('starter.services', ['ngResource'])
 
       'query': function () {
 
-        var TIMEOUT = 1000; //no of milliseconds
+        var TIMEOUT = 2000; //no of milliseconds
         var resource_error_handler = function(error) {
           Helper.hide_spinner(); // hide spinner in case of any active ones
           console.log('response error log:', error);
+          Helper.show_toast("Uh oh, request stopped :/ Pls contact Admin.");
         };
+
+        var BASE_URL = 'https://slm.smalldata.io/gmat';
 
         return $resource('', {}, {
 
+
           'get_account': {
                 method: 'GET',
-                url: 'http://slm.smalldata.io/gmat/api/student/:code',
+                url: BASE_URL + '/api/student/:code',
                 timeout: TIMEOUT,
                 interceptor: {
                   responseError: resource_error_handler
@@ -123,7 +127,7 @@ angular.module('starter.services', ['ngResource'])
 
           'scrape_account': {
                 method: 'GET',
-                url: 'http://slm.smalldata.io/gmat/scrape/:code',
+                url: BASE_URL + '/scrape/:code',
                 timeout: TIMEOUT * 60, // needs more time bcos of server ops
                 interceptor: {
                   responseError: resource_error_handler
@@ -133,10 +137,7 @@ angular.module('starter.services', ['ngResource'])
           'save_reminder': {
                 method: 'POST',
                 url: 'http://slm.smalldata.io/gmat/api/reminder',
-                timeout: TIMEOUT,
-                interceptor: {
-                  responseError: resource_error_handler
-                }
+                timeout: TIMEOUT
           }
 
         });
@@ -183,9 +184,10 @@ angular.module('starter.services', ['ngResource'])
         localStorage.setItem(key, JSON.stringify(value));
       },
 
-
       get: function(key) {
         if (key=='remind_time') {
+          var value = localStorage.getItem(key);
+          if (value === 'undefined') return;
           var value = JSON.parse(localStorage.getItem(key));
           return this.adjust_date_to_today(value);
         }
