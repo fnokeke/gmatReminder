@@ -3,6 +3,7 @@ angular.module('starter.services', ['ngResource'])
   .factory('Helper', function($timeout, $ionicLoading) {
 
     return {
+      APP_VERSION: '1.5',
       IOS_APP_LINK: 'https://itunes.apple.com/us/app/gmat-question-bank/id943136266?mt=8',
       ANDROID_APP_LINK: 'https://play.google.com/store/apps/details?id=com.veritas.mobile',
       IOS_SCHEME: 'https://itunes.apple.com/us/app/gmat-question-bank/id943136266?mt=8',
@@ -57,11 +58,29 @@ angular.module('starter.services', ['ngResource'])
         window.open(url, '_system', 'location=no');
       },
 
-    };
-  })
+    } // return
+
+  }) // Helper
 
 
-  .factory('ConnectivityMonitor', function($rootScope, $cordovaNetwork) {
+  .factory('Logger', function(VeritasHTTP, SavedAccount) {
+    return {
+      log_event: function(type, data) {
+        VeritasHTTP.query().audit_event({
+          'student_id': SavedAccount.get(SavedAccount.ACCOUNT).student_id,
+          'type': type,
+          'data': data
+        }, function(success_resp) {
+          console.log('Audit: ', type, data);
+        }, function(error_resp) {
+          Helper.show_toast("Error your app version. Pls contact Admin.");
+          console.log(error_resp);
+        });
+      }
+    } // return
+  }) // Logger
+
+  .factory('ConnectivityMonitor', function(VeritasHTTP, SavedAccount, $rootScope, $cordovaNetwork) {
 
     return {
       is_online: function(){
@@ -94,8 +113,10 @@ angular.module('starter.services', ['ngResource'])
             }, false);
           }
       }
-    }
-  })
+
+    }; // return
+
+  }) // ConnectivityMonitor
 
 
   .factory('VeritasHTTP', function ($resource, Helper) {
@@ -136,7 +157,13 @@ angular.module('starter.services', ['ngResource'])
 
           'save_reminder': {
                 method: 'POST',
-                url: 'http://slm.smalldata.io/gmat/api/reminder',
+                url: BASE_URL + '/api/reminder',
+                timeout: TIMEOUT
+          },
+
+          'audit_event': {
+                method: 'POST',
+                url: BASE_URL + '/api/audit_event',
                 timeout: TIMEOUT
           }
 

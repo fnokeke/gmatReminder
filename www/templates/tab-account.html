@@ -78,7 +78,8 @@
         <div class="row stable-bg">
           <div class="col text-center">
             {{practice.duration}} <br>
-            ({{ to_israel_tz(practice.taken_on) | date: "MMM d, h:mma" }}) <br />
+            ({{ practice.taken_on + 'Z' | date: "MMM d, h:mma " }})  <br />
+
           </div>
           <div class="col text-center" ng-init="q = practice.question_count">
             {{practice.percent_correct}} <br />
