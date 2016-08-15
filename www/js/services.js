@@ -66,6 +66,7 @@ angular.module('starter.services', ['ngResource'])
 .factory('Logger', function(VeritasHTTP, SavedAccount) {
     return {
       log_event: function(type, data) {
+        if (!SavedAccount.get(SavedAccount.ACCOUNT)) return;
         VeritasHTTP.query().audit_event({
           'student_id': SavedAccount.get(SavedAccount.ACCOUNT).student_id,
           'type': type,
