@@ -26,7 +26,9 @@ angular.module('starter.controllers', [])
   // log
   var type, data, today;
   today = new Date();
-  data = { 'tab': 'Guide at ' + today };
+  data = {
+    'tab': 'Guide at ' + today
+  };
   type = 'screen';
   Logger.log_event(type, data);
 
@@ -40,9 +42,8 @@ angular.module('starter.controllers', [])
   $scope.app_link = Helper.is_ios() ? Helper.IOS_APP_LINK : Helper.ANDROID_APP_LINK;
 
   $scope.open_install_link = function() {
-    Helper.is_ios()
-      ? Helper.open_url(Helper.IOS_APP_LINK)
-      : Helper.open_url(Helper.ANDROID_APP_LINK);
+    Helper.is_ios() ? Helper.open_url(Helper.IOS_APP_LINK) : Helper.open_url(
+      Helper.ANDROID_APP_LINK);
   };
 
   $scope.get_condition = function(condition) {
@@ -74,7 +75,9 @@ angular.module('starter.controllers', [])
     // log
     var type, data, today;
     today = new Date();
-    data = { 'button': 'start_guide at ' + today };
+    data = {
+      'button': 'start_guide at ' + today
+    };
     type = 'clicked';
     Logger.log_event(type, data);
 
@@ -82,14 +85,16 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('ReminderCtrl', function($scope, $rootScope, $ionicPlatform, $ionicPopup,
-                                      $cordovaLocalNotification, Helper, SavedAccount,
-                                      VeritasHTTP, ConnectivityMonitor, Logger) {
+.controller('ReminderCtrl', function($scope, $rootScope, $ionicPlatform,
+  $ionicPopup, $cordovaLocalNotification, Helper, SavedAccount, VeritasHTTP,
+  ConnectivityMonitor, Logger) {
 
   // log
   var type, data, today;
   today = new Date();
-  data = { 'tab': 'Reminder at ' + today };
+  data = {
+    'tab': 'Reminder at ' + today
+  };
   type = 'screen';
   Logger.log_event(type, data);
 
@@ -104,7 +109,7 @@ angular.module('starter.controllers', [])
     var today = new Date();
 
     return today.getDate() === wlc.getDate() &&
-           today.getMonth() === wlc.getMonth();
+      today.getMonth() === wlc.getMonth();
 
   };
 
@@ -139,7 +144,8 @@ angular.module('starter.controllers', [])
     }
 
     if (!SavedAccount.is_valid_participant()) {
-      Helper.show_toast('First submit participant code then you can set reminder.');
+      Helper.show_toast(
+        'First submit participant code then you can set reminder.');
       $scope.remind_time = null;
       return;
     }
@@ -157,7 +163,8 @@ angular.module('starter.controllers', [])
         $scope.reminder_msg = 'You do not have any reminder set.';
       } else {
 
-        var remind_time = SavedAccount.adjust_date_to_today(remind_time_arg);
+        var remind_time = SavedAccount.adjust_date_to_today(
+          remind_time_arg);
         var hr_min_str = remind_time.getHours() + ':' + remind_time.getMinutes();
 
         // save reminder time in server
@@ -165,22 +172,25 @@ angular.module('starter.controllers', [])
           student_id: SavedAccount.get(SavedAccount.ACCOUNT).student_id,
           remind_time: hr_min_str
         }, function(success_resp) {
-            var today = new Date();
-            SavedAccount.set(SavedAccount.WHEN_LAST_CHANGED, today);
-            SavedAccount.set(SavedAccount.REMIND_TIME, remind_time);
+          var today = new Date();
+          SavedAccount.set(SavedAccount.WHEN_LAST_CHANGED, today);
+          SavedAccount.set(SavedAccount.REMIND_TIME, remind_time);
 
-            $scope.is_disabled = true;
-            $scope.reminder_msg = 'Cannot change reminder until tomorrow.';
-            $scope.activateGMATReminder();
+          $scope.is_disabled = true;
+          $scope.reminder_msg =
+            'Cannot change reminder until tomorrow.';
+          $scope.activateGMATReminder();
 
-            Helper.show_toast('Reminder successfully saved.');
+          Helper.show_toast('Reminder successfully saved.');
         }, function(error_resp) {
-            Helper.show_toast("Uh oh, can't update reminder. Pls contact Admin.");
-            console.log(error_resp);
+          Helper.show_toast(
+            "Uh oh, can't update reminder. Pls contact Admin.");
+          console.log(error_resp);
 
-            $scope.remind_time = null;
-            $scope.is_disabled = false;
-            $scope.reminder_msg = 'Reminder failed to set. Pls contact Admin.';
+          $scope.remind_time = null;
+          $scope.is_disabled = false;
+          $scope.reminder_msg =
+            'Reminder failed to set. Pls contact Admin.';
         });
       } // end else
     }); // end confirmPopup
@@ -188,7 +198,9 @@ angular.module('starter.controllers', [])
     // log
     var type, data, today;
     today = new Date();
-    data = { 'button': 'save_reminder at ' + today };
+    data = {
+      'button': 'save_reminder at ' + today
+    };
     type = 'clicked';
     Logger.log_event(type, data);
   };
@@ -201,11 +213,13 @@ angular.module('starter.controllers', [])
   }
 
 
-$scope.toggle_deactivate = function(state) {
+  $scope.toggle_deactivate = function(state) {
     // log
     var type, data, today;
     today = new Date();
-    data = { 'button': 'deactivate_reminder at ' + today };
+    data = {
+      'button': 'deactivate_reminder at ' + today
+    };
     type = 'clicked';
     Logger.log_event(type, data);
 
@@ -224,7 +238,9 @@ $scope.toggle_deactivate = function(state) {
           student_id: SavedAccount.get(SavedAccount.ACCOUNT).student_id,
           remind_time: hr_min_str
         }, function(success_resp) {
-            console.log("deactivate successfully saved; response = ", success_resp);
+          console.log(
+            "deactivate successfully saved; response = ",
+            success_resp);
         });
 
       });
@@ -233,7 +249,8 @@ $scope.toggle_deactivate = function(state) {
     $scope.activateGMATReminder = function() {
       var remind_time = SavedAccount.get(SavedAccount.REMIND_TIME);
       if (!remind_time) {
-        Helper.show_toast("Cannot activate reminder until time is set.");
+        Helper.show_toast(
+          "Cannot activate reminder until time is set.");
         return;
       }
 
@@ -250,7 +267,8 @@ $scope.toggle_deactivate = function(state) {
       var
         timeDiff = alarmTime - currentTime,
         timeFromNow = new Date(currentTime.getTime() + timeDiff),
-        hrs_from_now = Math.round(((timeDiff / (3600 * 1000)) + 0.00001) *
+        hrs_from_now = Math.round(((timeDiff / (3600 * 1000)) +
+            0.00001) *
           100) / 100, // 2dp
         msg;
 
@@ -279,9 +297,11 @@ $scope.toggle_deactivate = function(state) {
       }
 
       if (isToday) {
-        msg = "Next alarm: Today at " + extractTime(timeFromNow) + msg;
+        msg = "Next alarm: Today at " + extractTime(timeFromNow) +
+          msg;
       } else {
-        msg = "Next alarm: Tomorrow at " + extractTime(timeFromNow) + msg;
+        msg = "Next alarm: Tomorrow at " + extractTime(timeFromNow) +
+          msg;
       }
       Helper.show_toast(msg);
 
@@ -305,16 +325,21 @@ $scope.toggle_deactivate = function(state) {
         at: timeFromNow
       });
 
-      $rootScope.$on('$cordovaLocalNotification:click', function(event, notification, state) {
+      $rootScope.$on('$cordovaLocalNotification:click', function(
+        event, notification, state) {
         if (notification.id !== 999) {
-          console.log('stopping...got diff notif id: ', notification.id);
+          console.log('stopping...got diff notif id: ',
+            notification.id);
           return;
         }
 
         // launch external app
         var scheme;
-        if (Helper.is_ios()) { scheme = Helper.IOS_SCHEME; }
-        else if (Helper.is_android()) { scheme = Helper.ANDROID_SCHEME; }
+        if (Helper.is_ios()) {
+          scheme = Helper.IOS_SCHEME;
+        } else if (Helper.is_android()) {
+          scheme = Helper.ANDROID_SCHEME;
+        }
 
         navigator.startApp.check(scheme,
 
@@ -326,15 +351,19 @@ $scope.toggle_deactivate = function(state) {
               },
 
               function(start_error) {
-                Helper.show_toast("Error launching GMAT app...");
+                Helper.show_toast(
+                  "Error launching GMAT app...");
               }
             );
           },
 
           function(check_error) {
             Helper.show_toast('You need to Install Veritas app');
-            if (Helper.is_android()) { Helper.open_url(Helper.ANDROID_APP_LINK); }
-            else if (Helper.is_ios()) { Helper.open_url(Helper.IOS_APP_LINK); }
+            if (Helper.is_android()) {
+              Helper.open_url(Helper.ANDROID_APP_LINK);
+            } else if (Helper.is_ios()) {
+              Helper.open_url(Helper.IOS_APP_LINK);
+            }
           }
         ); //navigator.startApp
 
@@ -357,13 +386,16 @@ $scope.toggle_deactivate = function(state) {
 
 })
 
-.controller('AccountCtrl', function($scope, $interval, $sce, Helper, SavedAccount,
-                                    ConnectivityMonitor, VeritasHTTP, Logger) {
+.controller('AccountCtrl', function($scope, $interval, $sce, Helper,
+  SavedAccount,
+  ConnectivityMonitor, VeritasHTTP, Logger) {
 
   // log
   var type, data, today;
   today = new Date();
-  data = { 'tab': 'Account at ' + today };
+  data = {
+    'tab': 'Account at ' + today
+  };
   type = 'screen';
   Logger.log_event(type, data);
 
@@ -388,20 +420,19 @@ $scope.toggle_deactivate = function(state) {
     var mins_diff = Math.abs(remind_total - taken_total);
 
     var has_deadline = SavedAccount.get(SavedAccount.ACCOUNT).has_deadline;
-    remind_total = has_deadline
-                      ? remind_total + SavedAccount.REMINDER_LIMIT
-                      : remind_total;
+    remind_total = has_deadline ? remind_total + SavedAccount.REMINDER_LIMIT :
+      remind_total;
 
     if (taken_total <= remind_total) {
-       return $scope.convert_display(mins_diff) + ' before reminder';
+      return $scope.convert_display(mins_diff) + ' before reminder';
     } else {
-       return $scope.convert_display(mins_diff) + ' after reminder';
+      return $scope.convert_display(mins_diff) + ' after reminder';
     }
   };
 
 
   $scope.convert_display = function(num_of_mins) {
-    if (num_of_mins <= 1)  {
+    if (num_of_mins <= 1) {
       return '1 min';
     } else if (num_of_mins < 60) {
       return num_of_mins + ' mins';
@@ -486,12 +517,14 @@ $scope.toggle_deactivate = function(state) {
       };
     }
 
-    $scope.fetch_account_details(code, first_time=true);
+    $scope.fetch_account_details(code, first_time = true);
 
     // log
     var type, data, today;
     today = new Date();
-    data = { 'button': 'submit_code at ' + today };
+    data = {
+      'button': 'submit_code at ' + today
+    };
     type = 'clicked';
     Logger.log_event(type, data);
   };
@@ -567,7 +600,8 @@ $scope.toggle_deactivate = function(state) {
     }
 
     if (!SavedAccount.is_valid_participant()) {
-      Helper.show_toast('You have no account yet. Submit your code first.');
+      Helper.show_toast(
+        'You have no account yet. Submit your code first.');
       Helper.hide_spinner();
       return;
     }
@@ -578,29 +612,34 @@ $scope.toggle_deactivate = function(state) {
     var today, phone, data, type;
     today = new Date();
     phone = Helper.is_android() ? 'android' : 'iOS';
-    data = { 'version': Helper.APP_VERSION + ' ' + phone + ' at ' + today };
+    data = {
+      'version': Helper.APP_VERSION + ' ' + phone + ' at ' + today
+    };
     type = 'installed';
     Logger.log_event(type, data);
 
     // log refresh score
     type = 'clicked';
-    data = { 'button': 'refresh_score at ' + today };
+    data = {
+      'button': 'refresh_score at ' + today
+    };
     Logger.log_event(type, data);
   };
 
 
-  $scope.scrape_and_get_practice = function () {
+  $scope.scrape_and_get_practice = function() {
     VeritasHTTP.query().scrape_account({
-      code: SavedAccount.get(SavedAccount.ACCOUNT).code
-    },
-    function(success) {
-      console.log('scrape response:', success);
-      success.practices_updated > 0
-                  ? Helper.show_toast("Updated: " + success.practices_updated + ' practice session(s).')
-                  : Helper.show_toast('No updated sessions.');
-      $scope.fetch_account_details(SavedAccount.get(SavedAccount.ACCOUNT).code);
-    }
-  );
+        code: SavedAccount.get(SavedAccount.ACCOUNT).code
+      },
+      function(success) {
+        console.log('scrape response:', success);
+        success.practices_updated > 0 ? Helper.show_toast("Updated: " +
+            success.practices_updated + ' practice session(s).') :
+          Helper.show_toast('No updated sessions.');
+        $scope.fetch_account_details(SavedAccount.get(SavedAccount.ACCOUNT)
+          .code);
+      }
+    );
 
   };
 
