@@ -58,7 +58,7 @@ angular.module('starter.services', ['ngResource'])
         window.open(url, '_system', 'location=no');
       },
 
-    } // return
+    }; // return
 
   }) // Helper
 
@@ -76,10 +76,11 @@ angular.module('starter.services', ['ngResource'])
         }, function(error_resp) {
           Helper.show_toast(
             "Error your app version. Pls contact Admin.");
+
           console.log(error_resp);
         });
       }
-    } // return
+    }; // return
   }) // Logger
 
 .factory('ConnectivityMonitor', function(VeritasHTTP, SavedAccount, $rootScope,
@@ -221,7 +222,8 @@ angular.module('starter.services', ['ngResource'])
       if (key == 'remind_time') {
         var value = localStorage.getItem(key);
         if (value === 'undefined') return;
-        var value = JSON.parse(localStorage.getItem(key));
+
+        value = JSON.parse(localStorage.getItem(key));
         return this.adjust_date_to_today(value);
       }
 
@@ -255,7 +257,7 @@ angular.module('starter.services', ['ngResource'])
     clear_all: function() {
       console.log("**********************");
       localStorage.clear();
-      console.log("Saved account wiped clean");;
+      console.log("Saved account wiped clean");
       console.log("**********************");
     },
 

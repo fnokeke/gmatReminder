@@ -9,3 +9,5 @@ vcs.xml
 workspace.xml
 .io-config.json
 .env
+stats/
+*.png
