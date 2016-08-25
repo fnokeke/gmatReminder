@@ -11,3 +11,5 @@ workspace.xml
 .env
 stats/
 *.png
+*.csv
+*.txt
